@@ -202,7 +202,7 @@ const commonOptions = {
   format: 'esm',
   sourcemap: true,
   banner: {
-    js: `import { createRequire } from 'module';const require = createRequire(import.meta.url);`,
+    js: `#!/usr/bin/env node\nimport { createRequire } from 'module';const require = createRequire(import.meta.url);`,
   },
   plugins: [tsExtensionPlugin, textLoaderPlugin, buildTargetPlugin],
   define: {

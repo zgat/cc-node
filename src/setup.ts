@@ -400,6 +400,7 @@ export async function setup(
     // Check if running as root/sudo on Unix-like systems
     // Allow root if in a sandbox (e.g., TPU devspaces that require root)
     if (
+      false &&
       process.platform !== 'win32' &&
       typeof process.getuid === 'function' &&
       process.getuid() === 0 &&

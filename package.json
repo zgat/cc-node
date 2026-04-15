@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/main.js",
   "bin": {
-    "claude-code-node": "dist/main.js"
+    "ccnode": "dist/cli.js"
   },
   "scripts": {
     "build": "node scripts/build.js",

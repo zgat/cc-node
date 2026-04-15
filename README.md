@@ -16,20 +16,30 @@ A Node.js-compatible port of the Claude Code CLI, originally built for Bun. This
 - **Node.js >= 18.0.0**
 - **React 19** + **react-reconciler ^0.33.0** (required by the custom Ink reconciler)
 
+## Installation
+
+```bash
+# Clone and install dependencies
+git clone git@github.com:zgat/cc-node.git
+cd cc-node
+npm install
+
+# Build and link the global `ccnode` command
+npm run build
+npm link
+```
+
 ## Quick Start
 
 ```bash
-# Install dependencies
-npm install
-
-# Build all entry points
-npm run build
-
 # Run in interactive mode
-node dist/cli.js
+ccnode
 
 # Run a one-shot prompt
-node dist/cli.js -p "Hello, Claude"
+ccnode -p "Hello, Claude"
+
+# Build after making changes
+npm run build
 
 # Type check
 npm run typecheck
