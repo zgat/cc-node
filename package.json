@@ -41,7 +41,6 @@
     "chokidar": "^3.6.0",
     "cli-boxes": "^3.0.0",
     "code-excerpt": "^4.0.0",
-    "color-diff-napi": "^0.0.1",
     "commander": "^12.0.0",
     "diff": "^5.2.0",
     "emoji-regex": "^10.3.0",
