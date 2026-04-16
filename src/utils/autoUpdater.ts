@@ -509,7 +509,15 @@ To fix this issue:
     const installResult = await execFileNoThrowWithCwd(
       packageManager,
       ['install', '-g', packageSpec],
-      { cwd: homedir(), stdio: 'inherit' },
+      {
+        cwd: homedir(),
+        stdio: 'inherit',
+        env: {
+          ...process.env,
+          FORCE_COLOR: '1',
+          npm_config_color: 'always',
+        },
+      },
     )
     if (installResult.code !== 0) {
       const error = new AutoUpdaterError(
