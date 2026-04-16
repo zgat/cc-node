@@ -78,6 +78,7 @@ The build script (`scripts/build.js`) bundles 4 entry points:
 - **Claude in Chrome**: The original `@ant/claude-for-chrome-mcp` (private Chrome extension + Native Messaging) has been replaced with the official Google `chrome-devtools-mcp` server, which controls Chrome directly via Puppeteer and the DevTools Protocol.
 - **Removed internal placeholder dependencies**: `audio-capture-napi` was removed (voice falls back to SoX/arecord), `modifiers-napi` was removed with a safe runtime fallback, and the dead `@anthropic-ai/claude-agent-sdk` type import was cleaned up.
 - **Keybinding change**: The "think" toggle keybinding has been remapped from `Cmd+T` (`meta+t`) to `Tab` (`tab`).
+- **Computer Use (TODO)**: The `@ant/computer-use-mcp`, `@ant/computer-use-input`, and `@ant/computer-use-swift` packages are Anthropic-internal native modules and are currently stubbed. Real Computer Use functionality (GUI automation, screenshots, native input) is not yet implemented in this port.
 - **No test suite** in this repository
 
 ## License
