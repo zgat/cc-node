@@ -74,6 +74,7 @@ The build script (`scripts/build.js`) bundles 4 entry points:
 - **ESM only**: `package.json` sets `"type": "module"`
 - **Import extensions**: Source uses `.js` extensions in imports even for `.ts`/`.tsx` files; the esbuild plugin handles resolution
 - **Feature flags**: esbuild `define` replaces flags like `FEATURE_BRIDGE_MODE` at build time for dead-code elimination
+- **Color diff rendering**: The npm package `color-diff-napi` is a placeholder with no real native code. This port uses `src/native-ts/color-diff/index.ts` — a pure TypeScript implementation that uses `highlight.js` for syntax highlighting and the `diff` package for word-level diffs, producing ANSI-colored terminal output aligned with the original Rust module.
 - **No test suite** in this repository
 
 ## License
