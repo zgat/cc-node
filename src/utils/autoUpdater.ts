@@ -509,7 +509,7 @@ To fix this issue:
     const installResult = await execFileNoThrowWithCwd(
       packageManager,
       ['install', '-g', packageSpec],
-      { cwd: homedir() },
+      { cwd: homedir(), stdio: 'inherit' },
     )
     if (installResult.code !== 0) {
       const error = new AutoUpdaterError(
