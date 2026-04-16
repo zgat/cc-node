@@ -75,6 +75,9 @@ The build script (`scripts/build.js`) bundles 4 entry points:
 - **Import extensions**: Source uses `.js` extensions in imports even for `.ts`/`.tsx` files; the esbuild plugin handles resolution
 - **Feature flags**: esbuild `define` replaces flags like `FEATURE_BRIDGE_MODE` at build time for dead-code elimination
 - **Color diff rendering**: The npm package `color-diff-napi` is a placeholder with no real native code. This port uses `src/native-ts/color-diff/index.ts` — a pure TypeScript implementation that uses `highlight.js` for syntax highlighting and the `diff` package for word-level diffs, producing ANSI-colored terminal output aligned with the original Rust module.
+- **Claude in Chrome**: The original `@ant/claude-for-chrome-mcp` (private Chrome extension + Native Messaging) has been replaced with the official Google `chrome-devtools-mcp` server, which controls Chrome directly via Puppeteer and the DevTools Protocol.
+- **Removed internal placeholder dependencies**: `audio-capture-napi` was removed (voice falls back to SoX/arecord), `modifiers-napi` was removed with a safe runtime fallback, and the dead `@anthropic-ai/claude-agent-sdk` type import was cleaned up.
+- **Keybinding change**: The "think" toggle keybinding has been remapped from `Cmd+T` (`meta+t`) to `Tab` (`tab`).
 - **No test suite** in this repository
 
 ## License
