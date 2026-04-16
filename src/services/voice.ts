@@ -11,27 +11,29 @@ import { isEnvTruthy, isRunningOnHomespace } from '../utils/envUtils.ts'
 import { logError } from '../utils/log.ts'
 import { getPlatform } from '../utils/platform.ts'
 
-// Lazy-loaded native audio module. audio-capture.node links against
-// CoreAudio.framework + AudioUnit.framework; dlopen is synchronous and
-// blocks the event loop for ~1s warm, up to ~8s on cold coreaudiod
-// (post-wake, post-boot). Load happens on first voice keypress — no
-// preload, because there's no way to make dlopen non-blocking and a
-// startup freeze is worse than a first-press delay.
-type AudioNapi = typeof import('audio-capture-napi')
+// The native audio module (audio-capture-napi) is an Anthropic-internal
+// package that is not available on npm. This port removes the dependency
+// and always reports native audio as unavailable, falling back to SoX
+// (macOS/Linux) or arecord (Linux) for voice recording.
+type AudioNapi = {
+  isNativeAudioAvailable(): boolean
+  isNativeRecordingActive(): boolean
+  stopNativeRecording(): void
+  startNativeRecording(
+    onData: (data: Buffer) => void,
+    onSilence: () => void,
+  ): boolean
+}
 let audioNapi: AudioNapi | null = null
 let audioNapiPromise: Promise<AudioNapi> | null = null
 
 function loadAudioNapi(): Promise<AudioNapi> {
-  audioNapiPromise ??= (async () => {
-    const t0 = Date.now()
-    const mod = await import('audio-capture-napi')
-    // vendor/audio-capture-src/index.ts defers require(...node) until the
-    // first function call — trigger it here so timing reflects real cost.
-    mod.isNativeAudioAvailable()
-    audioNapi = mod
-    logForDebugging(`[voice] audio-capture-napi loaded in ${Date.now() - t0}ms`)
-    return mod
-  })()
+  audioNapiPromise ??= Promise.resolve({
+    isNativeAudioAvailable: () => false,
+    isNativeRecordingActive: () => false,
+    stopNativeRecording: () => {},
+    startNativeRecording: () => false,
+  })
   return audioNapiPromise
 }
 

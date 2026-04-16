@@ -104,9 +104,6 @@ const tsExtensionPlugin = {
     build.onResolve({ filter: /^@anthropic-ai\/sandbox-runtime$/ }, () => {
       return { path: join(srcDir, '__stubs__', '@anthropic-ai', 'sandbox-runtime.ts') };
     });
-    build.onResolve({ filter: /^@anthropic-ai\/claude-agent-sdk$/ }, () => {
-      return { path: join(srcDir, '__stubs__', '@anthropic-ai', 'claude-agent-sdk.ts') };
-    });
     build.onResolve({ filter: /^@anthropic-ai\/mcpb$/ }, () => {
       return { path: join(srcDir, '__stubs__', '@anthropic-ai', 'mcpb.ts') };
     });
@@ -266,7 +263,6 @@ const commonOptions = {
     'react/compiler-runtime',
     // Native modules that cannot be bundled
     'modifiers-napi',
-    'audio-capture-napi',
   ],
   logLevel: 'info',
   resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.css', '.json'],

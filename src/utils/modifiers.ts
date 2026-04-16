@@ -28,9 +28,18 @@ export function isModifierPressed(modifier: ModifierKey): boolean {
   if (process.platform !== 'darwin') {
     return false
   }
-  // Dynamic import to avoid loading native module at top level
-  const { isModifierPressed: nativeIsModifierPressed } =
+  // Dynamic import to avoid loading native module at top level.
+  // The npm package is an Anthropic-internal placeholder; gracefully
+  // degrade to false when it is unavailable or empty.
+  try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    require('modifiers-napi') as { isModifierPressed: (m: string) => boolean }
-  return nativeIsModifierPressed(modifier)
+    const { isModifierPressed: nativeIsModifierPressed } =
+      require('modifiers-napi') as { isModifierPressed?: (m: string) => boolean }
+    if (typeof nativeIsModifierPressed !== 'function') {
+      return false
+    }
+    return nativeIsModifierPressed(modifier)
+  } catch {
+    return false
+  }
 }
