@@ -27,7 +27,6 @@ import { isEnvDefinedFalsy, isEnvTruthy } from '../envUtils.ts'
 import { errorMessage } from '../errors.ts'
 import { lazySchema } from '../lazySchema.ts'
 import { extractTextContent } from '../messages.ts'
-import { resolveAntModel } from '../model/antModels.ts'
 import { getMainLoopModel } from '../model/model.ts'
 import { getAutoModeConfig } from '../settings/settings.ts'
 import { sideQuery } from '../sideQuery.ts'
@@ -683,12 +682,6 @@ function replaceOutputFormatWithXml(systemPrompt: string): string {
 function getClassifierThinkingConfig(
   model: string,
 ): [false | undefined, number] {
-  if (
-    process.env.USER_TYPE === 'ant' &&
-    resolveAntModel(model)?.alwaysOnThinking
-  ) {
-    return [undefined, 2048]
-  }
   return [false, 0]
 }
 

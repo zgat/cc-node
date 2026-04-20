@@ -30,6 +30,8 @@ import { jsonParse } from './slowOperations.ts'
 const GCS_BUCKET_URL =
   'https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases'
 
+const GITHUB_REPO = 'zgat/cc-node'
+
 class AutoUpdaterError extends ClaudeError {}
 
 export type InstallStatus =
@@ -343,38 +345,34 @@ export async function getLatestVersion(
   return result.stdout.trim()
 }
 
+export async function getLatestCommitId(
+  _channel?: ReleaseChannel,
+): Promise<string | null> {
+  try {
+    const response = await axios.get(
+      `https://api.github.com/repos/${GITHUB_REPO}/commits/main`,
+      { timeout: 5000 },
+    )
+    const sha = response.data?.sha
+    return typeof sha === 'string' ? sha : null
+  } catch (error) {
+    logForDebugging(`Failed to fetch latest commit from GitHub: ${error}`)
+    return null
+  }
+}
+
 export type NpmDistTags = {
   latest: string | null
   stable: string | null
 }
 
 /**
- * Get npm dist-tags (latest and stable versions) from the registry.
- * This is used by the doctor command to show users what versions are available.
+ * Get latest commit from GitHub.
+ * This is used by the doctor command to show users the latest available commit.
  */
 export async function getNpmDistTags(): Promise<NpmDistTags> {
-  // Run from home directory to avoid reading project-level .npmrc
-  const result = await execFileNoThrowWithCwd(
-    'npm',
-    ['view', MACRO.PACKAGE_URL, 'dist-tags', '--json', '--prefer-online'],
-    { abortSignal: AbortSignal.timeout(5000), cwd: homedir() },
-  )
-
-  if (result.code !== 0) {
-    logForDebugging(`npm view dist-tags failed with code ${result.code}`)
-    return { latest: null, stable: null }
-  }
-
-  try {
-    const parsed = jsonParse(result.stdout.trim()) as Record<string, unknown>
-    return {
-      latest: typeof parsed.latest === 'string' ? parsed.latest : null,
-      stable: typeof parsed.stable === 'string' ? parsed.stable : null,
-    }
-  } catch (error) {
-    logForDebugging(`Failed to parse dist-tags: ${error}`)
-    return { latest: null, stable: null }
-  }
+  const latest = await getLatestCommitId('latest')
+  return { latest, stable: null }
 }
 
 /**

@@ -11,6 +11,7 @@ import { truncate } from '../../utils/format.ts';
 import { isFullscreenEnvEnabled } from '../../utils/fullscreen.ts';
 import { formatModelAndBilling, getLogoDisplayData, truncatePath } from '../../utils/logoV2Utils.ts';
 import { renderModelSetting } from '../../utils/model/model.ts';
+import { getContextWindowForModel } from '../../utils/context.ts';
 import { OffscreenFreeze } from '../OffscreenFreeze.tsx';
 import { AnimatedClawd } from './AnimatedClawd.tsx';
 import { Clawd } from './Clawd.tsx';
@@ -72,11 +73,17 @@ export function CondensedLogo() {
   const textWidth = Math.max(columns - 15, 20);
   const truncatedVersion = truncate(version, Math.max(textWidth - 13, 6));
   const effortSuffix = getEffortSuffix(model, effortValue);
+  const contextWindow = getContextWindowForModel(model);
+  const contextWindowText =
+    contextWindow >= 1_000_000
+      ? `${(contextWindow / 1_000_000).toFixed(contextWindow % 1_000_000 === 0 ? 0 : 1)}M ctx`
+      : `${Math.round(contextWindow / 1_000)}K ctx`;
+  const modelWithContext = modelDisplayName + effortSuffix + ` · ${contextWindowText}`;
   const {
     shouldSplit,
     truncatedModel,
     truncatedBilling
-  } = formatModelAndBilling(modelDisplayName + effortSuffix, billingType, textWidth);
+  } = formatModelAndBilling(modelWithContext, billingType, textWidth);
   const cwdAvailableWidth = agentName ? textWidth - 1 - stringWidth(agentName) - 3 : textWidth;
   const truncatedCwd = truncatePath(cwd, Math.max(cwdAvailableWidth, 10));
   let t4;

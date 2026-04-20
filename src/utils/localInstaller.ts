@@ -113,7 +113,16 @@ export async function installOrUpdateClaudePackage(
     const result = await execFileNoThrowWithCwd(
       'npm',
       ['install', `${MACRO.PACKAGE_URL}@${versionSpec}`],
-      { cwd: getLocalInstallDir(), maxBuffer: 1000000 },
+      {
+        cwd: getLocalInstallDir(),
+        maxBuffer: 1000000,
+        stdio: 'inherit',
+        env: {
+          ...process.env,
+          FORCE_COLOR: '1',
+          npm_config_color: 'always',
+        },
+      },
     )
 
     if (result.code !== 0) {

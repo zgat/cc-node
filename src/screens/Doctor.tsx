@@ -72,7 +72,7 @@ function DistTagsDisplay(t0) {
   }
   let t1;
   if ($[1] !== distTags.stable) {
-    t1 = distTags.stable && <Text>└ Stable version: {distTags.stable}</Text>;
+    t1 = distTags.stable && <Text>└ Stable commit: {distTags.stable}</Text>;
     $[1] = distTags.stable;
     $[2] = t1;
   } else {
@@ -80,7 +80,7 @@ function DistTagsDisplay(t0) {
   }
   let t2;
   if ($[3] !== distTags.latest) {
-    t2 = <Text>└ Latest version: {distTags.latest}</Text>;
+    t2 = <Text>└ Latest commit: {distTags.latest}</Text>;
     $[3] = distTags.latest;
     $[4] = t2;
   } else {

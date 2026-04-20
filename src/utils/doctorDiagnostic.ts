@@ -435,14 +435,7 @@ async function detectConfigurationIssues(
     if (type === 'npm-local' && config.installMethod !== 'local') {
       warnings.push({
         issue: `Running from local installation but config install method is '${config.installMethod}'`,
-        fix: 'Consider using native installation: claude install',
-      })
-    }
-
-    if (type === 'native' && config.installMethod !== 'native') {
-      warnings.push({
-        issue: `Running native installation but config install method is '${config.installMethod}'`,
-        fix: 'Run claude install to update configuration',
+        fix: 'Run `claude update` to update your local installation',
       })
     }
   }
@@ -450,7 +443,7 @@ async function detectConfigurationIssues(
   if (type === 'npm-global' && (await localInstallationExists())) {
     warnings.push({
       issue: 'Local installation exists but not being used',
-      fix: 'Consider using native installation: claude install',
+      fix: 'Switch to the local installation by adding it to your PATH or creating an alias',
     })
   }
 
@@ -580,7 +573,7 @@ export async function getDoctorDiagnostic(): Promise<DiagnosticInfo> {
     if (!hasUpdatePermissions && !getAutoUpdaterDisabledReason()) {
       warnings.push({
         issue: 'Insufficient permissions for auto-updates',
-        fix: 'Do one of: (1) Re-install node without sudo, or (2) Use `claude install` for native installation',
+        fix: 'Fix npm permissions (e.g., change npm prefix to a user-writable directory) or run with appropriate privileges',
       })
     }
   }

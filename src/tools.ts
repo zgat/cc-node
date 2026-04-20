@@ -11,17 +11,12 @@ import { NotebookEditTool } from './tools/NotebookEditTool/NotebookEditTool.ts'
 import { WebFetchTool } from './tools/WebFetchTool/WebFetchTool.ts'
 import { TaskStopTool } from './tools/TaskStopTool/TaskStopTool.ts'
 import { BriefTool } from './tools/BriefTool/BriefTool.ts'
-// Dead code elimination: conditional import for ant-only tools
+// Developer tools that were previously ant-only are now always available.
 /* eslint-disable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
-const REPLTool =
-  process.env.USER_TYPE === 'ant'
-    ? require('./tools/REPLTool/REPLTool.js').REPLTool
-    : null
+const REPLTool = require('./tools/REPLTool/REPLTool.js').REPLTool
 const SuggestBackgroundPRTool =
-  process.env.USER_TYPE === 'ant'
-    ? require('./tools/SuggestBackgroundPRTool/SuggestBackgroundPRTool.js')
-        .SuggestBackgroundPRTool
-    : null
+  require('./tools/SuggestBackgroundPRTool/SuggestBackgroundPRTool.js')
+    .SuggestBackgroundPRTool
 const SleepTool =
   feature('PROACTIVE') || feature('KAIROS')
     ? require('./tools/SleepTool/SleepTool.js').SleepTool
@@ -211,9 +206,6 @@ export function getAllBaseTools(): Tools {
     AskUserQuestionTool,
     SkillTool,
     EnterPlanModeTool,
-    ...(process.env.USER_TYPE === 'ant' ? [ConfigTool] : []),
-    ...(process.env.USER_TYPE === 'ant' ? [TungstenTool] : []),
-    ...(SuggestBackgroundPRTool ? [SuggestBackgroundPRTool] : []),
     ...(WebBrowserTool ? [WebBrowserTool] : []),
     ...(isTodoV2Enabled()
       ? [TaskCreateTool, TaskGetTool, TaskUpdateTool, TaskListTool]
@@ -229,7 +221,6 @@ export function getAllBaseTools(): Tools {
       ? [getTeamCreateTool(), getTeamDeleteTool()]
       : []),
     ...(VerifyPlanExecutionTool ? [VerifyPlanExecutionTool] : []),
-    ...(process.env.USER_TYPE === 'ant' && REPLTool ? [REPLTool] : []),
     ...(WorkflowTool ? [WorkflowTool] : []),
     ...(SleepTool ? [SleepTool] : []),
     ...cronTools,

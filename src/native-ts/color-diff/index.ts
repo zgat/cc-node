@@ -306,9 +306,9 @@ function buildTheme(themeName: string, mode: ColorMode): Theme {
     const deleteDecoration = rgb(220, 90, 90)
     if (isDaltonized) {
       return {
-        addLine: tc ? rgb(0, 27, 41) : ansiIdx(17),
-        addWord: tc ? rgb(0, 48, 71) : ansiIdx(24),
-        addDecoration: rgb(81, 160, 200),
+        addLine: tc ? rgb(0, 22, 33) : ansiIdx(17),
+        addWord: tc ? rgb(0, 40, 60) : ansiIdx(24),
+        addDecoration: rgb(70, 145, 185),
         deleteLine,
         deleteWord,
         deleteDecoration,
@@ -318,9 +318,9 @@ function buildTheme(themeName: string, mode: ColorMode): Theme {
       }
     }
     return {
-      addLine: tc ? rgb(2, 40, 0) : ansiIdx(22),
-      addWord: tc ? rgb(4, 71, 0) : ansiIdx(28),
-      addDecoration: rgb(80, 200, 80),
+      addLine: tc ? rgb(2, 32, 0) : ansiIdx(22),
+      addWord: tc ? rgb(4, 55, 0) : ansiIdx(28),
+      addDecoration: rgb(70, 180, 70),
       deleteLine,
       deleteWord,
       deleteDecoration,
@@ -332,13 +332,13 @@ function buildTheme(themeName: string, mode: ColorMode): Theme {
 
   // light
   const fg = rgb(51, 51, 51)
-  const deleteLine = rgb(255, 220, 220)
-  const deleteWord = rgb(255, 199, 199)
+  const deleteLine = rgb(245, 210, 210)
+  const deleteWord = rgb(235, 185, 185)
   const deleteDecoration = rgb(207, 34, 46)
   if (isDaltonized) {
     return {
-      addLine: rgb(219, 237, 255),
-      addWord: rgb(179, 217, 255),
+      addLine: rgb(200, 225, 245),
+      addWord: rgb(165, 200, 235),
       addDecoration: rgb(36, 87, 138),
       deleteLine,
       deleteWord,
@@ -349,8 +349,8 @@ function buildTheme(themeName: string, mode: ColorMode): Theme {
     }
   }
   return {
-    addLine: rgb(220, 255, 220),
-    addWord: rgb(178, 255, 178),
+    addLine: rgb(200, 240, 200),
+    addWord: rgb(165, 230, 165),
     addDecoration: rgb(36, 138, 61),
     deleteLine,
     deleteWord,
@@ -521,19 +521,20 @@ function highlightLine(
     // hljs throws on unknown language despite ignoreIllegals
     return [[defaultStyle(theme), code]]
   }
-  if (!hasRootNode(result.emitter)) {
+  const emitter = (result as unknown as { _emitter: unknown })._emitter
+  if (!hasRootNode(emitter)) {
     if (!loggedEmitterShapeError) {
       loggedEmitterShapeError = true
       logError(
         new Error(
-          `color-diff: hljs emitter shape mismatch (keys: ${Object.keys(result.emitter).join(',')}). Syntax highlighting disabled.`,
+          `color-diff: hljs emitter shape mismatch (keys: ${Object.keys(result as object).join(',')}). Syntax highlighting disabled.`,
         ),
       )
     }
     return [[defaultStyle(theme), code]]
   }
   const blocks: Block[] = []
-  flattenHljs(result.emitter.rootNode, theme, undefined, blocks)
+  flattenHljs(emitter.rootNode, theme, undefined, blocks)
   return blocks
 }
 

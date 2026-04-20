@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import * as esbuild from 'esbuild';
+import { execSync } from 'child_process';
 import { readFileSync, existsSync, mkdirSync, statSync } from 'fs';
 import { join, dirname, extname, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -30,9 +31,19 @@ const featureFlags = {
 const packageJson = JSON.parse(readFileSync(join(rootDir, 'package.json'), 'utf-8'));
 const VERSION = packageJson.version || '1.0.0';
 
+// Read current git commit id (falls back to empty string if not in a git repo)
+const COMMIT_ID = (() => {
+  try {
+    return execSync('git rev-parse HEAD', { cwd: rootDir, encoding: 'utf8' }).trim();
+  } catch {
+    return '';
+  }
+})();
+
 // MACRO constants - injected at build time (Bun compatibility)
 const MACRO = {
   VERSION: `"${VERSION}"`,
+  COMMIT_ID: `"${COMMIT_ID}"`,
   BUILD_TIME: `"${new Date().toISOString()}"`,
   FEEDBACK_CHANNEL: '"github"',  // 'github' or 'slack' for ant builds
   ISSUES_EXPLAINER: '""',

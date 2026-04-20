@@ -24,8 +24,8 @@ import { isEnvTruthy } from 'src/utils/envUtils.js';
 import { getStartupPerfLogPath, isDetailedProfilingEnabled } from 'src/utils/startupProfiler.js';
 import { EmergencyTip } from './EmergencyTip.tsx';
 import { VoiceModeNotice } from './VoiceModeNotice.tsx';
-import { Opus1mMergeNotice } from './Opus1mMergeNotice.tsx';
 import { feature } from '../../utils/featureFlags.js';
+import { getContextWindowForModel } from '../../utils/context.ts';
 
 // Conditional require so ChannelsNotice.tsx tree-shakes when both flags are
 // false. A module-scope helper component inside a feature() ternary does NOT
@@ -166,10 +166,18 @@ export function LogoV2() {
   } = getLogoDisplayData();
   const agentName = agent ?? agentNameFromSettings;
   const effortSuffix = getEffortSuffix(model, effortValue);
-  const t9 = fullModelDisplayName + effortSuffix;
+  const contextWindow = getContextWindowForModel(model);
+  const contextWindowText =
+    contextWindow >= 1_000_000
+      ? `${(contextWindow / 1_000_000).toFixed(contextWindow % 1_000_000 === 0 ? 0 : 1)}M ctx`
+      : `${Math.round(contextWindow / 1_000)}K ctx`;
+  const modelBase = fullModelDisplayName + effortSuffix;
+  const suffix = ` · ${contextWindowText}`;
+  const maxBaseWidth = LEFT_PANEL_MAX_WIDTH - 20 - stringWidth(suffix);
+  const t9 = truncate(modelBase, Math.max(maxBaseWidth, 1)) + suffix;
   let t10;
   if ($[13] !== t9) {
-    t10 = truncate(t9, LEFT_PANEL_MAX_WIDTH - 20);
+    t10 = t9;
     $[13] = t9;
     $[14] = t10;
   } else {
@@ -187,7 +195,6 @@ export function LogoV2() {
     if ($[15] === Symbol.for("react.memo_cache_sentinel")) {
       t11 = <CondensedLogo />;
       t12 = <VoiceModeNotice />;
-      t13 = <Opus1mMergeNotice />;
       t14 = ChannelsNoticeModule && <ChannelsNoticeModule.ChannelsNotice />;
       t15 = isDebugMode() && <Box paddingLeft={2} flexDirection="column"><Text color="warning">Debug mode enabled</Text><Text dimColor={true}>Logging to: {isDebugToStdErr() ? "stderr" : getDebugLogPath()}</Text></Box>;
       t16 = <EmergencyTip />;
@@ -297,7 +304,7 @@ export function LogoV2() {
     let t16;
     if ($[37] === Symbol.for("react.memo_cache_sentinel")) {
       t14 = <VoiceModeNotice />;
-      t15 = <Opus1mMergeNotice />;
+      t15 = null;
       t16 = ChannelsNoticeModule && <ChannelsNoticeModule.ChannelsNotice />;
       $[37] = t14;
       $[38] = t15;
@@ -458,7 +465,7 @@ export function LogoV2() {
   let t34;
   if ($[75] === Symbol.for("react.memo_cache_sentinel")) {
     t29 = <VoiceModeNotice />;
-    t30 = <Opus1mMergeNotice />;
+    t30 = null;
     t31 = ChannelsNoticeModule && <ChannelsNoticeModule.ChannelsNotice />;
     t32 = isDebugMode() && <Box paddingLeft={2} flexDirection="column"><Text color="warning">Debug mode enabled</Text><Text dimColor={true}>Logging to: {isDebugToStdErr() ? "stderr" : getDebugLogPath()}</Text></Box>;
     t33 = <EmergencyTip />;

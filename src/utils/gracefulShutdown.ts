@@ -210,6 +210,18 @@ function forceExit(exitCode: number): never {
   } catch {
     // Terminal may be gone (SIGHUP). Ignore — we are about to exit.
   }
+  // Ensure the cursor is on a fresh line before exiting. Alt-screen exit
+  // (DEC 1049) restores the saved cursor position, which may land mid-line.
+  // Writing \r\n here (the very last terminal write before process.exit)
+  // guarantees the shell prompt appears on a new line regardless of which
+  // exit path was taken (React keybinding, SIGINT, SIGTERM, etc.).
+  try {
+    if (process.stdout.isTTY) {
+      writeSync(1, '\r\n\r\n\r\n')
+    }
+  } catch {
+    // Terminal may be gone. Ignore.
+  }
   try {
     process.exit(exitCode)
   } catch (e) {

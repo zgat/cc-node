@@ -48,7 +48,7 @@ import { createReadRuleSuggestion } from './PermissionUpdate.ts'
 import type { PermissionUpdate } from './PermissionUpdateSchema.ts'
 import { getRuleByContentsForToolName } from './permissions.ts'
 
-declare const MACRO: { VERSION: string }
+declare const MACRO: { VERSION: string; COMMIT_ID: string }
 
 /**
  * Dangerous files that should be protected from auto-editing.
