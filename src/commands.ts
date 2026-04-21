@@ -25,8 +25,6 @@ import ide from './commands/ide/index.ts'
 import init from './commands/init.ts'
 import initVerifiers from './commands/init-verifiers.ts'
 import keybindings from './commands/keybindings/index.ts'
-import login from './commands/login/index.ts'
-import logout from './commands/logout/index.ts'
 import installGitHubApp from './commands/install-github-app/index.ts'
 import installSlackApp from './commands/install-slack-app/index.ts'
 import breakCache from './commands/break-cache/index.js'
@@ -334,7 +332,6 @@ const COMMANDS = memoize((): Command[] => [
   hooks,
   exportCommand,
   sandboxToggle,
-  ...(!isUsing3PServices() ? [logout, login()] : []),
   passes,
   ...(peersCmd ? [peersCmd] : []),
   tasks,

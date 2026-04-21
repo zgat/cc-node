@@ -99,7 +99,15 @@
       "Bash(CLAUDE_CODE_FORCE_TTY=1 timeout 3 /usr/local/bin/ccnode --bare)",
       "Bash(CLAUDE_CODE_FORCE_TTY=1 timeout 5 /usr/local/bin/ccnode)",
       "Bash(CLAUDE_CODE_FORCE_TTY=1 timeout 5 /usr/local/bin/ccnode --bare -p \"hello\")",
-      "Bash(CLAUDE_CODE_FORCE_TTY=1 timeout 3 /usr/local/bin/ccnode --bare -p \"hello\")"
+      "Bash(CLAUDE_CODE_FORCE_TTY=1 timeout 3 /usr/local/bin/ccnode --bare -p \"hello\")",
+      "Bash(find /root/claude-code-node/src/services/oauth -type f -name *.ts -o -name *.tsx)",
+      "Bash(tr -d '{}')",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//root/claude-code-node/**)",
+      "Bash(done)",
+      "Bash(for fn:*)",
+      "Bash(grep -c \"$fn\" dist/cli.js)"
     ]
   }
 }

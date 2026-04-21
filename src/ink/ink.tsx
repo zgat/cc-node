@@ -1456,6 +1456,26 @@ export default class Ink {
     if (this.isUnmounted) {
       return;
     }
+    // Set unmounted flag FIRST, before any cleanup that might throw.
+    // If onRender() or renderPreviousOutput throws, signal-exit's deferred
+    // unmount (triggered by process.exit()) must see isUnmounted=true and
+    // early-return. Without this, the second unmount writes a fresh Ink frame
+    // to the main screen (alt screen was already exited by cleanupTerminalModes).
+    this.isUnmounted = true;
+    // Force synchronous stdout writes during unmount so that onRender() data
+    // reaches the terminal BEFORE the EXIT_ALT_SCREEN sequence. Node.js
+    // Writable streams may defer writes via the event loop; if EXIT_ALT_SCREEN
+    // arrives first, the deferred Ink frame is painted onto the main screen.
+    const origWrite = this.terminal.stdout.write.bind(this.terminal.stdout);
+    this.terminal.stdout.write = (chunk: string | Uint8Array, _encoding?: string, cb?: (error?: Error | null) => void): boolean => {
+      try {
+        writeSync(1, chunk as string);
+      } catch {
+        // Terminal may be gone (SIGHUP). Ignore.
+      }
+      if (cb) cb();
+      return true;
+    };
     this.onRender();
     this.unsubscribeExit();
     if (typeof this.restoreConsole === 'function') {
@@ -1468,6 +1488,9 @@ export default class Ink {
     // only render last frame of non-static output
     const diff = this.log.renderPreviousOutput_DEPRECATED(this.frontFrame);
     writeDiffToTerminal(this.terminal, optimize(diff));
+
+    // Restore async write before the remaining cleanup
+    this.terminal.stdout.write = origWrite;
 
     // Clean up terminal modes synchronously before process exit.
     // React's componentWillUnmount won't run in time when process.exit() is called,
@@ -1504,8 +1527,6 @@ export default class Ink {
       if (supportsTabStatus()) writeSync(1, wrapForMultiplexer(CLEAR_TAB_STATUS));
     }
     /* eslint-enable custom-rules/no-sync-fs */
-
-    this.isUnmounted = true;
 
     // Cancel any pending throttled renders to prevent accessing freed Yoga nodes
     this.scheduleRender.cancel?.();

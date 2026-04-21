@@ -19,16 +19,13 @@ import { getOriginalCwd, getSessionId } from '../bootstrap/state.ts'
 import type { SDKMessage } from '../entrypoints/agentSdkTypes.ts'
 import type { SDKControlResponse } from '../entrypoints/sdk/controlTypes.js'
 import { getFeatureValue_CACHED_WITH_REFRESH } from '../services/analytics/growthbook.ts'
-import { getOrganizationUUID } from '../services/oauth/client.ts'
 import {
   isPolicyAllowed,
   waitForPolicyLimitsToLoad,
 } from '../services/policyLimits/index.ts'
 import type { Message } from '../types/message.js'
 import {
-  checkAndRefreshOAuthTokenIfNeeded,
   getClaudeAIOAuthTokens,
-  handleOAuth401Error,
 } from '../utils/auth.ts'
 import { getGlobalConfig, saveGlobalConfig } from '../utils/config.ts'
 import { logForDebugging } from '../utils/debug.ts'
@@ -48,6 +45,13 @@ import {
   generateSessionTitle,
 } from '../utils/sessionTitle.ts'
 import { generateShortWordSlug } from '../utils/words.ts'
+
+// OAuth stubs — login removed in the Node.js port. These functions are only
+// called from code paths gated by getBridgeAccessToken() which returns null
+// when isAnthropicAuthEnabled() is false, so they never actually execute.
+async function getOrganizationUUID(): Promise<string | null> { return null }
+async function checkAndRefreshOAuthTokenIfNeeded(): Promise<void> {}
+async function handleOAuth401Error(): Promise<boolean> { return false }
 import {
   getBridgeAccessToken,
   getBridgeBaseUrl,

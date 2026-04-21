@@ -57,55 +57,35 @@ import { profileReport } from './startupProfiler.ts'
  */
 /* eslint-disable custom-rules/no-sync-fs -- must be sync to flush before process.exit */
 function cleanupTerminalModes(): void {
+  const inst = instances.get(process.stdout)
+  const hasAltScreen = inst?.isAltScreenActive ?? false
+
+  // Always unmount Ink if alt screen is active, even when process.stdout.isTTY
+  // is falsy (e.g. Node.js SyncWriteStream). Without this, signal-exit's
+  // deferred unmount runs AFTER printResumeHint() and paints a stale Ink frame
+  // onto the main screen.
+  if (hasAltScreen) {
+    try {
+      inst!.unmount()
+    } catch {
+      // Reconciler/render threw — fall back to manual alt-screen exit
+      try { writeSync(1, EXIT_ALT_SCREEN) } catch {}
+    }
+    inst?.detachForShutdown()
+  }
+
+  // The remaining sequences are terminal-mode resets. Skip them when stdout
+  // is not a TTY (they're no-ops on non-terminals).
   if (!process.stdout.isTTY) {
     return
   }
 
   try {
     // Disable mouse tracking FIRST, before the React unmount tree-walk.
-    // The terminal needs a round-trip to process this and stop sending
-    // events; doing it now (not after unmount) gives that time while
-    // we're busy unmounting. Otherwise events arrive during cooked-mode
-    // cleanup and either echo to the screen or leak to the shell.
     writeSync(1, DISABLE_MOUSE_TRACKING)
-    // Exit alt screen FIRST so printResumeHint() (and all sequences below)
-    // land on the main buffer.
-    //
-    // Unmount Ink directly rather than writing EXIT_ALT_SCREEN ourselves.
-    // Ink registered its unmount with signal-exit, so it will otherwise run
-    // AGAIN inside forceExit() → process.exit(). Two problems with letting
-    // that happen:
-    //   1. If we write 1049l here and unmount writes it again later, the
-    //      second one triggers another DECRC — the cursor jumps back over
-    //      the resume hint and the shell prompt lands on the wrong line.
-    //   2. unmount()'s onRender() must run with altScreenActive=true (alt-
-    //      screen cursor math) AND on the alt buffer. Exiting alt-screen
-    //      here first makes onRender() scribble a REPL frame onto main.
-    // Calling unmount() now does the final render on the alt buffer,
-    // unsubscribes from signal-exit, and writes 1049l exactly once.
-    const inst = instances.get(process.stdout)
-    if (inst?.isAltScreenActive) {
-      try {
-        inst.unmount()
-      } catch {
-        // Reconciler/render threw — fall back to manual alt-screen exit
-        // so printResumeHint still hits the main buffer.
-        writeSync(1, EXIT_ALT_SCREEN)
-      }
-    }
-    // Catches events that arrived during the unmount tree-walk.
-    // detachForShutdown() below also drains.
+    // Drain stdin so in-flight mouse events don't leak to the shell.
     inst?.drainStdin()
-    // Mark the Ink instance unmounted so signal-exit's deferred ink.unmount()
-    // early-returns instead of sending redundant EXIT_ALT_SCREEN sequences
-    // (from its writeSync cleanup block + AlternateScreen's unmount cleanup).
-    // Those redundant sequences land AFTER printResumeHint() and clobber the
-    // resume hint on tmux (and possibly other terminals) by restoring the
-    // saved cursor position. Safe to skip full unmount: this function already
-    // sends all the terminal-reset sequences, and the process is exiting.
-    inst?.detachForShutdown()
-    // Disable extended key reporting — always send both since terminals
-    // silently ignore whichever they don't implement
+    // Disable extended key reporting
     writeSync(1, DISABLE_MODIFY_OTHER_KEYS)
     writeSync(1, DISABLE_KITTY_KEYBOARD)
     // Disable focus events (DECSET 1004)
@@ -114,14 +94,11 @@ function cleanupTerminalModes(): void {
     writeSync(1, DBP)
     // Show cursor
     writeSync(1, SHOW_CURSOR)
-    // Clear iTerm2 progress bar - prevents lingering progress indicator
-    // that can cause bell sounds when returning to the terminal tab
+    // Clear iTerm2 progress bar
     writeSync(1, CLEAR_ITERM2_PROGRESS)
-    // Clear tab status (OSC 21337) so a stale dot doesn't linger
+    // Clear tab status
     if (supportsTabStatus()) writeSync(1, wrapForMultiplexer(CLEAR_TAB_STATUS))
-    // Clear terminal title so the tab doesn't show stale session info.
-    // Respect CLAUDE_CODE_DISABLE_TERMINAL_TITLE — if the user opted out of
-    // title changes, don't clear their existing title on exit either.
+    // Clear terminal title
     if (!isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_TERMINAL_TITLE)) {
       if (process.platform === 'win32') {
         process.title = ''
@@ -173,7 +150,7 @@ function printResumeHint(): void {
       writeSync(
         1,
         chalk.dim(
-          `\nResume this session with:\nclaude --resume ${resumeArg}\n`,
+          `\r\nResume this session with:\r\nclaude --resume ${resumeArg}\r\n`,
         ),
       )
       resumeHintPrinted = true
@@ -210,14 +187,16 @@ function forceExit(exitCode: number): never {
   } catch {
     // Terminal may be gone (SIGHUP). Ignore — we are about to exit.
   }
-  // Ensure the cursor is on a fresh line before exiting. Alt-screen exit
-  // (DEC 1049) restores the saved cursor position, which may land mid-line.
-  // Writing \r\n here (the very last terminal write before process.exit)
-  // guarantees the shell prompt appears on a new line regardless of which
-  // exit path was taken (React keybinding, SIGINT, SIGTERM, etc.).
+  // Ensure the cursor is on a fresh line before exiting.
+  // When resumeHintPrinted is true, printResumeHint() already moved the cursor
+  // to a new line — only a single \r\n is needed as a safety margin.
+  // When resumeHintPrinted is false (no conversation yet), the cursor is still
+  // somewhere in the middle of the alt screen; we need extra newlines to push
+  // it to the bottom so the shell prompt lands in the right place.
   try {
     if (process.stdout.isTTY) {
-      writeSync(1, '\r\n\r\n\r\n')
+      const trailingNewlines = resumeHintPrinted ? '\r\n' : '\r\n\r\n\r\n'
+      writeSync(1, trailingNewlines)
     }
   } catch {
     // Terminal may be gone. Ignore.
