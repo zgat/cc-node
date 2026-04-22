@@ -1,6 +1,6 @@
-# CC Node - Node.js Port
+# CC Node
 
-A Node.js-compatible port of the CC Node CLI, originally built for Bun. This version uses **esbuild** for bundling and runs on standard Node.js 18+.
+A Node.js-compatible port of CC Node, originally built for Bun. This version uses **esbuild** for bundling and runs on standard Node.js 18+.
 
 ## Features
 
@@ -48,6 +48,15 @@ npm run typecheck
 npm run dev
 ```
 
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ANTHROPIC_MODEL` | Model ID for API requests |
+| `ANTHROPIC_BASE_URL` | Custom API endpoint |
+| `ANTHROPIC_AUTH_TOKEN` | API authentication token |
+| `CLAUDE_CODE_MAX_CONTEXT_TOKENS` | Maximum context window size |
+
 ## Build Outputs
 
 The build script (`scripts/build.js`) bundles 4 entry points:
@@ -81,6 +90,3 @@ The build script (`scripts/build.js`) bundles 4 entry points:
 - **Computer Use (TODO)**: The `@ant/computer-use-mcp`, `@ant/computer-use-input`, and `@ant/computer-use-swift` packages are Anthropic-internal native modules and are currently stubbed. Real Computer Use functionality (GUI automation, screenshots, native input) is not yet implemented in this port.
 - **No test suite** in this repository
 
-## License
-
-Original CC Node source remains the property of Anthropic. This repository is an independent port maintained for research and compatibility purposes.
