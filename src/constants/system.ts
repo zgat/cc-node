@@ -7,8 +7,8 @@ import { isEnvDefinedFalsy } from '../utils/envUtils.ts'
 import { getAPIProvider } from '../utils/model/providers.ts'
 import { getWorkload } from '../utils/workloadContext.ts'
 
-const DEFAULT_PREFIX = `You are Claude Code, Anthropic's official CLI for Claude.`
-const AGENT_SDK_CLAUDE_CODE_PRESET_PREFIX = `You are Claude Code, Anthropic's official CLI for Claude, running within the Claude Agent SDK.`
+const DEFAULT_PREFIX = `You are CC Node, Anthropic's official CLI for Claude.`
+const AGENT_SDK_CLAUDE_CODE_PRESET_PREFIX = `You are CC Node, Anthropic's official CLI for Claude, running within the Claude Agent SDK.`
 const AGENT_SDK_PREFIX = `You are a Claude agent, built on Anthropic's Claude Agent SDK.`
 
 const CLI_SYSPROMPT_PREFIX_VALUES = [

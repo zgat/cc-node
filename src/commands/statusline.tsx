@@ -3,7 +3,7 @@ import type { Command } from '../commands.ts';
 import { AGENT_TOOL_NAME } from '../tools/AgentTool/constants.ts';
 const statusline = {
   type: 'prompt',
-  description: "Set up Claude Code's status line UI",
+  description: "Set up CC Node's status line UI",
   contentLength: 0,
   // Dynamic content
   aliases: [],

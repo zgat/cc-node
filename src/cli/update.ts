@@ -114,7 +114,7 @@ export async function update() {
   if (latestCommitId === currentCommitId) {
     writeToStdout(
       chalk.green(
-        `Claude Code is up to date (commit ${currentCommitId!.slice(0, 7)})`,
+        `CC Node is up to date (commit ${currentCommitId!.slice(0, 7)})`,
       ) + '\n',
     )
     await gracefulShutdown(0)

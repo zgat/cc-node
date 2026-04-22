@@ -4,7 +4,7 @@ const status = {
   type: 'local-jsx',
   name: 'status',
   description:
-    'Show Claude Code status including version, model, account, API connectivity, and tool statuses',
+    'Show CC Node status including version, model, account, API connectivity, and tool statuses',
   immediate: true,
   load: () => import('./status.tsx'),
 } satisfies Command

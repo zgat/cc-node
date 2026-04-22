@@ -110,7 +110,8 @@
       "Bash(grep -c \"$fn\" dist/cli.js)",
       "Bash(apt-get install *)",
       "Bash(timeout 20 expect /tmp/test_exit3.tcl)",
-      "Bash(echo \"EXIT_CODE=$?\")"
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(perl *)"
     ]
   }
 }

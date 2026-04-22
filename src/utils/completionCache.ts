@@ -89,7 +89,7 @@ export async function setupShellCompletion(theme: ThemeName): Promise<string> {
   // Generate the completion script by writing directly to the cache file.
   // Using --output avoids piping through stdout where process.exit() can
   // truncate output before the pipe buffer drains.
-  const claudeBin = process.argv[1] || 'claude'
+  const claudeBin = process.argv[1] || 'ccnode'
   const result = await execFileNoThrow(claudeBin, [
     'completion',
     shell.shellFlag,
@@ -123,7 +123,7 @@ export async function setupShellCompletion(theme: ThemeName): Promise<string> {
     await mkdir(configDir, { recursive: true })
 
     const separator = existing && !existing.endsWith('\n') ? '\n' : ''
-    const content = `${existing}${separator}\n# Claude Code shell completions\n${shell.completionLine}\n`
+    const content = `${existing}${separator}\n# CC Node shell completions\n${shell.completionLine}\n`
     await writeFile(shell.rcFile, content, { encoding: 'utf-8' })
 
     return `${EOL}${color('success', theme)(`Installed ${shell.name} shell completions`)}${EOL}${chalk.dim(`Added to ${formatPathLink(shell.rcFile)}`)}${EOL}${chalk.dim(`Run: source ${shell.rcFile}`)}${EOL}`
@@ -145,7 +145,7 @@ export async function regenerateCompletionCache(): Promise<void> {
 
   logForDebugging(`update: Regenerating ${shell.name} completion cache`)
 
-  const claudeBin = process.argv[1] || 'claude'
+  const claudeBin = process.argv[1] || 'ccnode'
   const result = await execFileNoThrow(claudeBin, [
     'completion',
     shell.shellFlag,

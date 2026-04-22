@@ -1,6 +1,6 @@
-# Claude Code - Node.js Port
+# CC Node - Node.js Port
 
-A Node.js-compatible port of the Claude Code CLI, originally built for Bun. This version uses **esbuild** for bundling and runs on standard Node.js 18+.
+A Node.js-compatible port of the CC Node CLI, originally built for Bun. This version uses **esbuild** for bundling and runs on standard Node.js 18+.
 
 ## Features
 
@@ -83,4 +83,4 @@ The build script (`scripts/build.js`) bundles 4 entry points:
 
 ## License
 
-Original Claude Code source remains the property of Anthropic. This repository is an independent port maintained for research and compatibility purposes.
+Original CC Node source remains the property of Anthropic. This repository is an independent port maintained for research and compatibility purposes.

@@ -3,7 +3,7 @@
  *
  * Registers the `claude-cli://` custom URI scheme with the OS,
  * so that clicking a `claude-cli://` link in a browser (or any app) will
- * invoke `claude --handle-uri <url>`.
+ * invoke `ccnode --handle-uri <url>`.
  *
  * Platform details:
  *   macOS  — Creates a minimal .app trampoline in ~/Applications with
@@ -31,9 +31,9 @@ import { getUserBinDir, getXDGDataHome } from '../xdg.ts'
 import { DEEP_LINK_PROTOCOL } from './parseDeepLink.ts'
 
 export const MACOS_BUNDLE_ID = 'com.anthropic.claude-code-url-handler'
-const APP_NAME = 'Claude Code URL Handler'
+const APP_NAME = 'CC Node URL Handler'
 const DESKTOP_FILE_NAME = 'claude-code-url-handler.desktop'
-const MACOS_APP_NAME = 'Claude Code URL Handler.app'
+const MACOS_APP_NAME = 'CC Node URL Handler.app'
 
 // Shared between register* (writes these paths/values) and
 // isProtocolHandlerCurrent (reads them back). Keep the writer and reader
@@ -108,7 +108,7 @@ async function registerMacos(claudePath: string): Promise<void> {
   <array>
     <dict>
       <key>CFBundleURLName</key>
-      <string>Claude Code Deep Link</string>
+      <string>CC Node Deep Link</string>
       <key>CFBundleURLSchemes</key>
       <array>
         <string>${DEEP_LINK_PROTOCOL}</string>
@@ -146,7 +146,7 @@ async function registerLinux(claudePath: string): Promise<void> {
 
   const desktopEntry = `[Desktop Entry]
 Name=${APP_NAME}
-Comment=Handle ${DEEP_LINK_PROTOCOL}:// deep links for Claude Code
+Comment=Handle ${DEEP_LINK_PROTOCOL}:// deep links for CC Node
 ${linuxExecLine(claudePath)}
 Type=Application
 NoDisplay=true

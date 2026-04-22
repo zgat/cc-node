@@ -289,7 +289,7 @@ const entryPoints = [
 ];
 
 async function build() {
-  console.log('Building Claude Code (Node.js version)...');
+  console.log('Building CC Node (Node.js version)...');
   console.log('Entry points:', entryPoints.map(e => e.in).join(', '));
 
   try {
