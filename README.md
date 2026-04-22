@@ -36,7 +36,7 @@ npm link
 ccnode
 
 # Run a one-shot prompt
-ccnode -p "Hello, Claude"
+ccnode -p "Hello, ccnode"
 
 # Build after making changes
 npm run build
