@@ -71,7 +71,23 @@ function cleanupTerminalModes(): void {
       // Reconciler/render threw — fall back to manual alt-screen exit
       try { writeSync(1, EXIT_ALT_SCREEN) } catch {}
     }
-    inst?.detachForShutdown()
+  }
+
+  // Prevent signal-exit's deferred ink.unmount() from firing after
+  // printResumeHint(). Without this, unmount() → onRender() writes a fresh
+  // Ink frame that overwrites the resume hint on the main screen.
+  // External builds never enter alt-screen, so the hasAltScreen guard above
+  // alone doesn't cover them — detachForShutdown must run whenever an instance
+  // is still registered.
+  inst?.detachForShutdown()
+
+  // Always exit alt screen if it was active, even when stdout.isTTY is falsy.
+  // Node.js SyncWriteStream (used by REPL) has isTTY=undefined even though
+  // fd 1 is a TTY. The unmount() above skips EXIT_ALT_SCREEN when its own
+  // isTTY check fails, so we send it here as a fallback. DEC 1049 is a no-op
+  // if the terminal is not in alt-screen mode.
+  if (hasAltScreen) {
+    try { writeSync(1, EXIT_ALT_SCREEN) } catch {}
   }
 
   // The remaining sequences are terminal-mode resets. Skip them when stdout
@@ -123,16 +139,21 @@ function printResumeHint(): void {
   if (resumeHintPrinted) {
     return
   }
-  // Only show with TTY, interactive sessions, and persistence
+  // Only show with interactive sessions and persistence.
+  // Skip the process.stdout.isTTY check: Node.js SyncWriteStream (REPL) has
+  // isTTY=undefined even though fd 1 is a TTY. The writeSync below will
+  // silently fail if the terminal is actually gone, which is fine.
+  const isInteractive = getIsInteractive()
+  const isPersistenceDisabled = isSessionPersistenceDisabled()
+  const sessionId = getSessionId()
+  const sessionExists = sessionIdExists(sessionId)
   if (
-    process.stdout.isTTY &&
-    getIsInteractive() &&
-    !isSessionPersistenceDisabled()
+    isInteractive &&
+    !isPersistenceDisabled
   ) {
     try {
-      const sessionId = getSessionId()
       // Don't show resume hint if no session file exists (e.g., subcommands like `claude update`)
-      if (!sessionIdExists(sessionId)) {
+      if (!sessionExists) {
         return
       }
       const customTitle = getCurrentSessionTitle(sessionId)
@@ -188,14 +209,15 @@ function forceExit(exitCode: number): never {
     // Terminal may be gone (SIGHUP). Ignore — we are about to exit.
   }
   // Ensure the cursor is on a fresh line before exiting.
-  // When resumeHintPrinted is true, printResumeHint() already moved the cursor
-  // to a new line — only a single \r\n is needed as a safety margin.
-  // When resumeHintPrinted is false (no conversation yet), the cursor is still
-  // somewhere in the middle of the alt screen; we need extra newlines to push
-  // it to the bottom so the shell prompt lands in the right place.
+  // When resumeHintPrinted is true, printResumeHint() already output
+  // \r\nResume...\r\nclaude...\r\n which leaves the cursor at the start of
+  // a fresh line — no extra newline needed.
+  // When resumeHintPrinted is false (no conversation yet), the cursor is at
+  // whatever position EXIT_ALT_SCREEN restored; push it down so the shell
+  // prompt lands in the right place.
   try {
     if (process.stdout.isTTY) {
-      const trailingNewlines = resumeHintPrinted ? '\r\n' : '\r\n\r\n\r\n'
+      const trailingNewlines = resumeHintPrinted ? '' : '\r\n\r\n\r\n'
       writeSync(1, trailingNewlines)
     }
   } catch {

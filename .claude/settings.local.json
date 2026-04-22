@@ -107,7 +107,10 @@
       "Read(//root/claude-code-node/**)",
       "Bash(done)",
       "Bash(for fn:*)",
-      "Bash(grep -c \"$fn\" dist/cli.js)"
+      "Bash(grep -c \"$fn\" dist/cli.js)",
+      "Bash(apt-get install *)",
+      "Bash(timeout 20 expect /tmp/test_exit3.tcl)",
+      "Bash(echo \"EXIT_CODE=$?\")"
     ]
   }
 }
