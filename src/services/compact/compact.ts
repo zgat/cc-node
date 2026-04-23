@@ -38,7 +38,7 @@ import {
   getDeferredToolsDeltaAttachment,
   getMcpInstructionsDeltaAttachment,
 } from '../../utils/attachments.ts'
-import { getMemoryPath } from '../../utils/config.ts'
+import { getLegacyMemoryPath, getMemoryPath } from '../../utils/config.ts'
 import { COMPACT_MAX_OUTPUT_TOKENS } from '../../utils/context.ts'
 import {
   analyzeContext,
@@ -1686,12 +1686,15 @@ function shouldExcludeFromPostCompactRestore(
     // If we can't get plan file path, continue with other checks
   }
 
-  // Exclude all types of claude.md files
+  // Exclude all types of memory instruction files (ccnode.md and CLAUDE.md variants)
   // TODO: Refactor to use isMemoryFilePath() from claudemd.ts for consistency
   // and to also match child directory memory files (.claude/rules/*.md, etc.)
   try {
     const normalizedMemoryPaths = new Set(
-      MEMORY_TYPE_VALUES.map(type => expandPath(getMemoryPath(type))),
+      MEMORY_TYPE_VALUES.flatMap(type => [
+        expandPath(getMemoryPath(type)),
+        expandPath(getLegacyMemoryPath(type)),
+      ]),
     )
 
     if (normalizedMemoryPaths.has(normalizedFilename)) {

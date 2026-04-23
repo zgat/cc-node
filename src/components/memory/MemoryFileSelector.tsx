@@ -17,6 +17,7 @@ import { useAppState } from '../../state/AppState.tsx';
 import { getAgentMemoryDir } from '../../tools/AgentTool/agentMemory.ts';
 import { openPath } from '../../utils/browser.ts';
 import { getMemoryFiles, type MemoryFileInfo } from '../../utils/claudemd.ts';
+import { getMemoryPath } from '../../utils/config.ts';
 import { getClaudeConfigHomeDir } from '../../utils/envUtils.ts';
 import { getDisplayPath } from '../../utils/file.ts';
 import { formatRelativeTimeAgo } from '../../utils/format.ts';
@@ -48,8 +49,8 @@ export function MemoryFileSelector(t0) {
     onCancel
   } = t0;
   const existingMemoryFiles = use(getMemoryFiles());
-  const userMemoryPath = join(getClaudeConfigHomeDir(), "CLAUDE.md");
-  const projectMemoryPath = join(getOriginalCwd(), "CLAUDE.md");
+  const userMemoryPath = getMemoryPath('User');
+  const projectMemoryPath = getMemoryPath('Project');
   const hasUserMemory = existingMemoryFiles.some(f => f.path === userMemoryPath);
   const hasProjectMemory = existingMemoryFiles.some(f_0 => f_0.path === projectMemoryPath);
   const allMemoryFiles = [...existingMemoryFiles.filter(_temp).map(_temp2), ...(hasUserMemory ? [] : [{
@@ -87,10 +88,10 @@ export function MemoryFileSelector(t0) {
     let description;
     const isGit = projectIsInGitRepo(getOriginalCwd());
     if (file.type === "User" && !file.isNested) {
-      description = "Saved in ~/.claude/CLAUDE.md";
+      description = "Saved in ~/.claude/ccnode.md";
     } else {
       if (file.type === "Project" && !file.isNested && file.path === projectMemoryPath) {
-        description = `${isGit ? "Checked in at" : "Saved in"} ./CLAUDE.md`;
+        description = `${isGit ? "Checked in at" : "Saved in"} ./ccnode.md`;
       } else {
         if (file.parent) {
           description = "@-imported";

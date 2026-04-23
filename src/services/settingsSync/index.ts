@@ -25,7 +25,7 @@ import {
   getClaudeAIOAuthTokens,
 } from '../../utils/auth.ts'
 import { clearMemoryFileCaches } from '../../utils/claudemd.ts'
-import { getMemoryPath } from '../../utils/config.ts'
+import { getLegacyMemoryPath, getMemoryPath } from '../../utils/config.ts'
 import { logForDiagnosticsNoPII } from '../../utils/diagLogs.ts'
 import { classifyAxiosError } from '../../utils/errors.ts'
 import { getRepoRemoteHash } from '../../utils/git.ts'
@@ -429,9 +429,10 @@ async function buildEntriesFromLocalFiles(
     }
   }
 
-  // Global user memory
-  const userMemoryPath = getMemoryPath('User')
-  const userMemoryContent = await tryReadFileForSync(userMemoryPath)
+  // Global user memory - try ccnode.md first, then CLAUDE.md fallback
+  const userMemoryContent =
+    (await tryReadFileForSync(getMemoryPath('User'))) ||
+    (await tryReadFileForSync(getLegacyMemoryPath('User')))
   if (userMemoryContent) {
     entries[SYNC_KEYS.USER_MEMORY] = userMemoryContent
   }
@@ -447,9 +448,10 @@ async function buildEntriesFromLocalFiles(
       }
     }
 
-    // Project local memory
-    const localMemoryPath = getMemoryPath('Local')
-    const localMemoryContent = await tryReadFileForSync(localMemoryPath)
+    // Project local memory - try ccnode.local.md first, then CLAUDE.local.md fallback
+    const localMemoryContent =
+      (await tryReadFileForSync(getMemoryPath('Local'))) ||
+      (await tryReadFileForSync(getLegacyMemoryPath('Local')))
     if (localMemoryContent) {
       entries[SYNC_KEYS.projectMemory(projectId)] = localMemoryContent
     }

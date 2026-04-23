@@ -336,8 +336,13 @@ export const FileWriteTool = buildTool({
       limit: undefined,
     })
 
-    // Log when writing to CLAUDE.md
-    if (fullFilePath.endsWith(`${sep}CLAUDE.md`)) {
+    // Log when writing to memory instruction files
+    if (
+      fullFilePath.endsWith(`${sep}ccnode.md`) ||
+      fullFilePath.endsWith(`${sep}CLAUDE.md`) ||
+      fullFilePath.endsWith(`${sep}.ccnode.md`) ||
+      fullFilePath.endsWith(`${sep}.CLAUDE.md`)
+    ) {
       logEvent('tengu_write_claudemd', {})
     }
 

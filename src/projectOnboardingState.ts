@@ -17,23 +17,29 @@ export type Step = {
 }
 
 export function getSteps(): Step[] {
-  const hasClaudeMd = getFsImplementation().existsSync(
-    join(getCwd(), 'CLAUDE.md'),
-  )
-  const isWorkspaceDirEmpty = isDirEmpty(getCwd())
+  const fs = getFsImplementation()
+  const cwd = getCwd()
+  const hasCcnodeMd =
+    fs.existsSync(join(cwd, 'ccnode.md')) ||
+    fs.existsSync(join(cwd, 'CLAUDE.md')) ||
+    fs.existsSync(join(cwd, '.ccnode.md')) ||
+    fs.existsSync(join(cwd, '.CLAUDE.md')) ||
+    fs.existsSync(join(cwd, '.claude', 'ccnode.md')) ||
+    fs.existsSync(join(cwd, '.claude', 'CLAUDE.md'))
+  const isWorkspaceDirEmpty = isDirEmpty(cwd)
 
   return [
     {
       key: 'workspace',
-      text: 'Ask Claude to create a new app or clone a repository',
+      text: 'Ask CC Node to create a new app or clone a repository',
       isComplete: false,
       isCompletable: true,
       isEnabled: isWorkspaceDirEmpty,
     },
     {
       key: 'claudemd',
-      text: 'Run /init to create a CLAUDE.md file with instructions for Claude',
-      isComplete: hasClaudeMd,
+      text: 'Run /init to create a ccnode.md file with instructions for CC Node',
+      isComplete: hasCcnodeMd,
       isCompletable: true,
       isEnabled: !isWorkspaceDirEmpty,
     },

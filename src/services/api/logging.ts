@@ -112,9 +112,15 @@ function detectGateway({
   baseUrl?: string
 }): KnownGateway | undefined {
   if (headers) {
-    // Header names are already lowercase from the Headers API
+    // Header names are already lowercase from the Headers API.
+    // APIError.headers is a Proxy object without .forEach(), so fall back to
+    // Object.keys when necessary.
     const headerNames: string[] = []
-    headers.forEach((_, key) => headerNames.push(key))
+    if (typeof headers.forEach === 'function') {
+      headers.forEach((_, key) => headerNames.push(key))
+    } else {
+      headerNames.push(...Object.keys(headers))
+    }
     for (const [gw, { prefixes }] of Object.entries(GATEWAY_FINGERPRINTS)) {
       if (prefixes.some(p => headerNames.some(h => h.startsWith(p)))) {
         return gw as KnownGateway

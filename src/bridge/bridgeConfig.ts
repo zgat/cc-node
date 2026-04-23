@@ -14,21 +14,22 @@
 import { getOauthConfig } from '../constants/oauth.ts'
 import { getClaudeAIOAuthTokens } from '../utils/auth.ts'
 
-/** Ant-only dev override: CLAUDE_BRIDGE_OAUTH_TOKEN, else undefined. */
+/**
+ * OAuth token override for bridge API calls.
+ * When using a self-hosted bridge server, set CLAUDE_BRIDGE_OAUTH_TOKEN
+ * to a custom token (or any non-empty string if the server does not require auth).
+ */
 export function getBridgeTokenOverride(): string | undefined {
-  return (
-    (process.env.USER_TYPE === 'ant' &&
-      process.env.CLAUDE_BRIDGE_OAUTH_TOKEN) ||
-    undefined
-  )
+  return process.env.CLAUDE_BRIDGE_OAUTH_TOKEN || undefined
 }
 
-/** Ant-only dev override: CLAUDE_BRIDGE_BASE_URL, else undefined. */
+/**
+ * Base URL override for bridge API calls.
+ * Set CLAUDE_BRIDGE_BASE_URL to point at a self-hosted CCR-compatible server
+ * instead of the default Anthropic cloud endpoint.
+ */
 export function getBridgeBaseUrlOverride(): string | undefined {
-  return (
-    (process.env.USER_TYPE === 'ant' && process.env.CLAUDE_BRIDGE_BASE_URL) ||
-    undefined
-  )
+  return process.env.CLAUDE_BRIDGE_BASE_URL || undefined
 }
 
 /**

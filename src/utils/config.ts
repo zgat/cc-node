@@ -1781,6 +1781,32 @@ export function getMemoryPath(memoryType: MemoryType): string {
 
   switch (memoryType) {
     case 'User':
+      return join(getClaudeConfigHomeDir(), 'ccnode.md')
+    case 'Local':
+      return join(cwd, 'ccnode.local.md')
+    case 'Project':
+      return join(cwd, 'ccnode.md')
+    case 'Managed':
+      return join(getManagedFilePath(), 'ccnode.md')
+    case 'AutoMem':
+      return getAutoMemEntrypoint()
+  }
+  // TeamMem is only a valid MemoryType when feature('TEAMMEM') is true
+  if (feature('TEAMMEM')) {
+    return teamMemPaths!.getTeamMemEntrypoint()
+  }
+  return '' // unreachable in external builds where TeamMem is not in MemoryType
+}
+
+/**
+ * Legacy CLAUDE.md path for backward compatibility.
+ * Use this when you need the old path as a fallback.
+ */
+export function getLegacyMemoryPath(memoryType: MemoryType): string {
+  const cwd = getOriginalCwd()
+
+  switch (memoryType) {
+    case 'User':
       return join(getClaudeConfigHomeDir(), 'CLAUDE.md')
     case 'Local':
       return join(cwd, 'CLAUDE.local.md')
@@ -1791,11 +1817,10 @@ export function getMemoryPath(memoryType: MemoryType): string {
     case 'AutoMem':
       return getAutoMemEntrypoint()
   }
-  // TeamMem is only a valid MemoryType when feature('TEAMMEM') is true
   if (feature('TEAMMEM')) {
     return teamMemPaths!.getTeamMemEntrypoint()
   }
-  return '' // unreachable in external builds where TeamMem is not in MemoryType
+  return ''
 }
 
 export function getManagedClaudeRulesDir(): string {

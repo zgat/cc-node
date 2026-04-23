@@ -1,10 +1,10 @@
 /**
  * Files are loaded in the following order:
  *
- * 1. Managed memory (eg. /etc/claude-code/CLAUDE.md) - Global instructions for all users
- * 2. User memory (~/.claude/CLAUDE.md) - Private global instructions for all projects
- * 3. Project memory (CLAUDE.md, .claude/CLAUDE.md, and .claude/rules/*.md in project roots) - Instructions checked into the codebase
- * 4. Local memory (CLAUDE.local.md in project roots) - Private project-specific instructions
+ * 1. Managed memory (eg. /etc/cc-node/ccnode.md) - Global instructions for all users
+ * 2. User memory (~/.claude/ccnode.md) - Private global instructions for all projects
+ * 3. Project memory (ccnode.md, .ccnode.md, .claude/ccnode.md, and .claude/rules/*.md in project roots) - Instructions checked into the codebase
+ * 4. Local memory (ccnode.local.md in project roots) - Private project-specific instructions
  *
  * Files are loaded in reverse order of priority, i.e. the latest files are highest priority
  * with the model paying more attention to them.
@@ -13,7 +13,8 @@
  * - User memory is loaded from the user's home directory
  * - Project and Local files are discovered by traversing from the current directory up to root
  * - Files closer to the current directory have higher priority (loaded later)
- * - CLAUDE.md, .claude/CLAUDE.md, and all .md files in .claude/rules/ are checked in each directory for Project memory
+ * - ccnode.md takes priority over CLAUDE.md (backward compatibility)
+ * - ccnode.md, .ccnode.md, .claude/ccnode.md, and all .md files in .claude/rules/ are checked in each directory for Project memory
  *
  * Memory @include directive:
  * - Memory files can include other files using @ notation
@@ -50,6 +51,7 @@ import { getAutoMemEntrypoint, isAutoMemoryEnabled } from '../memdir/paths.ts'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.ts'
 import {
   getCurrentProjectConfig,
+  getLegacyMemoryPath,
   getManagedClaudeRulesDir,
   getMemoryPath,
   getUserClaudeRulesDir,
@@ -83,6 +85,30 @@ const teamMemPaths = feature('TEAMMEM')
   ? (require('../memdir/teamMemPaths.ts') as typeof import('../memdir/teamMemPaths.ts'))
   : null
 /* eslint-enable @typescript-eslint/no-require-imports */
+
+/**
+ * Try loading a memory file with priority fallback:
+ * ccnode variant first, then CLAUDE.md variant.
+ * Only one is loaded per call — ccnode.md takes precedence.
+ */
+async function processMemoryFileWithFallback(
+  ccnodePath: string,
+  claudePath: string,
+  type: MemoryType,
+  processedPaths: Set<string>,
+  includeExternal: boolean,
+): Promise<MemoryFileInfo[]> {
+  const ccnodeResult = await processMemoryFile(
+    ccnodePath,
+    type,
+    processedPaths,
+    includeExternal,
+  )
+  if (ccnodeResult.length > 0) {
+    return ccnodeResult
+  }
+  return processMemoryFile(claudePath, type, processedPaths, includeExternal)
+}
 
 let hasLoggedInitialLoad = false
 
@@ -801,10 +827,10 @@ export const getMemoryFiles = memoize(
       false
 
     // Process Managed file first (always loaded - policy settings)
-    const managedClaudeMd = getMemoryPath('Managed')
     result.push(
-      ...(await processMemoryFile(
-        managedClaudeMd,
+      ...(await processMemoryFileWithFallback(
+        getMemoryPath('Managed'),
+        getLegacyMemoryPath('Managed'),
         'Managed',
         processedPaths,
         includeExternal,
@@ -824,10 +850,10 @@ export const getMemoryFiles = memoize(
 
     // Process User file (only if userSettings is enabled)
     if (isSettingSourceEnabled('userSettings')) {
-      const userClaudeMd = getMemoryPath('User')
       result.push(
-        ...(await processMemoryFile(
-          userClaudeMd,
+        ...(await processMemoryFileWithFallback(
+          getMemoryPath('User'),
+          getLegacyMemoryPath('User'),
           'User',
           processedPaths,
           true, // User memory can always include external files
@@ -883,23 +909,35 @@ export const getMemoryFiles = memoize(
         pathInWorkingPath(dir, canonicalRoot) &&
         !pathInWorkingPath(dir, gitRoot)
 
-      // Try reading CLAUDE.md (Project) - only if projectSettings is enabled
+      // Try reading project memory files - only if projectSettings is enabled
       if (isSettingSourceEnabled('projectSettings') && !skipProject) {
-        const projectPath = join(dir, 'CLAUDE.md')
+        // Visible root: ccnode.md → CLAUDE.md
         result.push(
-          ...(await processMemoryFile(
-            projectPath,
+          ...(await processMemoryFileWithFallback(
+            join(dir, 'ccnode.md'),
+            join(dir, 'CLAUDE.md'),
             'Project',
             processedPaths,
             includeExternal,
           )),
         )
 
-        // Try reading .claude/CLAUDE.md (Project)
-        const dotClaudePath = join(dir, '.claude', 'CLAUDE.md')
+        // Hidden root: .ccnode.md → .CLAUDE.md
         result.push(
-          ...(await processMemoryFile(
-            dotClaudePath,
+          ...(await processMemoryFileWithFallback(
+            join(dir, '.ccnode.md'),
+            join(dir, '.CLAUDE.md'),
+            'Project',
+            processedPaths,
+            includeExternal,
+          )),
+        )
+
+        // .claude subdirectory: .claude/ccnode.md → .claude/CLAUDE.md
+        result.push(
+          ...(await processMemoryFileWithFallback(
+            join(dir, '.claude', 'ccnode.md'),
+            join(dir, '.claude', 'CLAUDE.md'),
             'Project',
             processedPaths,
             includeExternal,
@@ -919,12 +957,12 @@ export const getMemoryFiles = memoize(
         )
       }
 
-      // Try reading CLAUDE.local.md (Local) - only if localSettings is enabled
+      // Local memory: ccnode.local.md → CLAUDE.local.md
       if (isSettingSourceEnabled('localSettings')) {
-        const localPath = join(dir, 'CLAUDE.local.md')
         result.push(
-          ...(await processMemoryFile(
-            localPath,
+          ...(await processMemoryFileWithFallback(
+            join(dir, 'ccnode.local.md'),
+            join(dir, 'CLAUDE.local.md'),
             'Local',
             processedPaths,
             includeExternal,
@@ -933,29 +971,40 @@ export const getMemoryFiles = memoize(
       }
     }
 
-    // Process CLAUDE.md from additional directories (--add-dir) if env var is enabled
+    // Process memory files from additional directories (--add-dir) if env var is enabled
     // This is controlled by CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD and defaults to off
     // Note: we don't check isSettingSourceEnabled('projectSettings') here because --add-dir
     // is an explicit user action and the SDK defaults settingSources to [] when not specified
     if (isEnvTruthy(process.env.CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD)) {
       const additionalDirs = getAdditionalDirectoriesForClaudeMd()
       for (const dir of additionalDirs) {
-        // Try reading CLAUDE.md from the additional directory
-        const projectPath = join(dir, 'CLAUDE.md')
+        // Visible root: ccnode.md → CLAUDE.md
         result.push(
-          ...(await processMemoryFile(
-            projectPath,
+          ...(await processMemoryFileWithFallback(
+            join(dir, 'ccnode.md'),
+            join(dir, 'CLAUDE.md'),
             'Project',
             processedPaths,
             includeExternal,
           )),
         )
 
-        // Try reading .claude/CLAUDE.md from the additional directory
-        const dotClaudePath = join(dir, '.claude', 'CLAUDE.md')
+        // Hidden root: .ccnode.md → .CLAUDE.md
         result.push(
-          ...(await processMemoryFile(
-            dotClaudePath,
+          ...(await processMemoryFileWithFallback(
+            join(dir, '.ccnode.md'),
+            join(dir, '.CLAUDE.md'),
+            'Project',
+            processedPaths,
+            includeExternal,
+          )),
+        )
+
+        // .claude subdirectory: .claude/ccnode.md → .claude/CLAUDE.md
+        result.push(
+          ...(await processMemoryFileWithFallback(
+            join(dir, '.claude', 'ccnode.md'),
+            join(dir, '.claude', 'CLAUDE.md'),
             'Project',
             processedPaths,
             includeExternal,
@@ -1253,21 +1302,30 @@ export async function getMemoryFilesForNestedDirectory(
 ): Promise<MemoryFileInfo[]> {
   const result: MemoryFileInfo[] = []
 
-  // Process project memory files (CLAUDE.md and .claude/CLAUDE.md)
+  // Process project memory files (ccnode.md variants with CLAUDE.md fallback)
   if (isSettingSourceEnabled('projectSettings')) {
-    const projectPath = join(dir, 'CLAUDE.md')
     result.push(
-      ...(await processMemoryFile(
-        projectPath,
+      ...(await processMemoryFileWithFallback(
+        join(dir, 'ccnode.md'),
+        join(dir, 'CLAUDE.md'),
         'Project',
         processedPaths,
         false,
       )),
     )
-    const dotClaudePath = join(dir, '.claude', 'CLAUDE.md')
     result.push(
-      ...(await processMemoryFile(
-        dotClaudePath,
+      ...(await processMemoryFileWithFallback(
+        join(dir, '.ccnode.md'),
+        join(dir, '.CLAUDE.md'),
+        'Project',
+        processedPaths,
+        false,
+      )),
+    )
+    result.push(
+      ...(await processMemoryFileWithFallback(
+        join(dir, '.claude', 'ccnode.md'),
+        join(dir, '.claude', 'CLAUDE.md'),
         'Project',
         processedPaths,
         false,
@@ -1275,11 +1333,16 @@ export async function getMemoryFilesForNestedDirectory(
     )
   }
 
-  // Process local memory file (CLAUDE.local.md)
+  // Process local memory file (ccnode.local.md → CLAUDE.local.md)
   if (isSettingSourceEnabled('localSettings')) {
-    const localPath = join(dir, 'CLAUDE.local.md')
     result.push(
-      ...(await processMemoryFile(localPath, 'Local', processedPaths, false)),
+      ...(await processMemoryFileWithFallback(
+        join(dir, 'ccnode.local.md'),
+        join(dir, 'CLAUDE.local.md'),
+        'Local',
+        processedPaths,
+        false,
+      )),
     )
   }
 
@@ -1430,13 +1493,24 @@ export async function shouldShowClaudeMdExternalIncludesWarning(): Promise<boole
 }
 
 /**
- * Check if a file path is a memory file (CLAUDE.md, CLAUDE.local.md, or .claude/rules/*.md)
+ * Check if a file path is a memory file (ccnode.md, CLAUDE.md, ccnode.local.md,
+ * CLAUDE.local.md, .ccnode.md, .CLAUDE.md, or .claude/rules/*.md)
  */
 export function isMemoryFilePath(filePath: string): boolean {
   const name = basename(filePath)
 
-  // CLAUDE.md or CLAUDE.local.md anywhere
-  if (name === 'CLAUDE.md' || name === 'CLAUDE.local.md') {
+  // Memory instruction files anywhere
+  if (
+    name === 'ccnode.md' ||
+    name === 'CLAUDE.md' ||
+    name === 'ccnode.local.md' ||
+    name === 'CLAUDE.local.md'
+  ) {
+    return true
+  }
+
+  // Hidden memory files at root level (.ccnode.md, .CLAUDE.md)
+  if (name === '.ccnode.md' || name === '.CLAUDE.md') {
     return true
   }
 

@@ -223,11 +223,13 @@ export async function spawnShellTask(input: LocalShellSpawnInput & {
     cancelStallWatchdog();
     await flushAndCleanup(shellCommand);
     let wasKilled = false;
+    let cleanupFn: (() => void) | undefined;
     updateTaskState<LocalShellTaskState>(taskId, setAppState, task => {
       if (task.status === 'killed') {
         wasKilled = true;
         return task;
       }
+      cleanupFn = task.unregisterCleanup;
       return {
         ...task,
         status: result.code === 0 ? 'completed' : 'failed',
@@ -240,6 +242,7 @@ export async function spawnShellTask(input: LocalShellSpawnInput & {
         endTime: Date.now()
       };
     });
+    cleanupFn?.();
     enqueueShellNotification(taskId, description, wasKilled ? 'killed' : result.code === 0 ? 'completed' : 'failed', result.code, setAppState, toolUseId, kind, agentId);
     void evictTaskOutput(taskId);
   });

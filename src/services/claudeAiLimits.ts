@@ -495,8 +495,14 @@ export function extractQuotaStatusFromError(error: APIError): void {
   try {
     let newLimits = { ...currentLimits }
     if (error.headers) {
+      // APIError.headers is a Proxy object (from createResponseHeaders) without
+      // .get() method, but downstream helpers expect a real Headers instance.
+      // Convert it before passing through.
+      const headers = new globalThis.Headers(
+        Object.fromEntries(Object.entries(error.headers)),
+      )
       // Process headers (applies mocks from /mock-limits command if active)
-      const headersToUse = processRateLimitHeaders(error.headers)
+      const headersToUse = processRateLimitHeaders(headers)
       rawUtilization = extractRawUtilization(headersToUse)
       newLimits = computeNewLimitsFromHeaders(headersToUse)
 
