@@ -98,15 +98,20 @@ export async function registerWorker(
   sessionUrl: string,
   accessToken: string,
 ): Promise<number> {
+  const isAnthropicHost =
+    sessionUrl.includes('anthropic.com') || sessionUrl.includes('claude.ai')
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+  }
+  if (isAnthropicHost) {
+    headers['anthropic-version'] = '2023-06-01'
+  }
   const response = await axios.post(
     `${sessionUrl}/worker/register`,
     {},
     {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01',
-      },
+      headers,
       timeout: 10_000,
     },
   )

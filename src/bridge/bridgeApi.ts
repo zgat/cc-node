@@ -73,13 +73,22 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
   let consecutiveEmptyPolls = 0
   const EMPTY_POLL_LOG_INTERVAL = 100
 
+  const baseUrlLower = deps.baseUrl.toLowerCase()
+  const isAnthropicHost =
+    baseUrlLower.includes('anthropic.com') ||
+    baseUrlLower.includes('claude.ai')
+
   function getHeaders(accessToken: string): Record<string, string> {
     const headers: Record<string, string> = {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
-      'anthropic-version': '2023-06-01',
-      'anthropic-beta': BETA_HEADER,
       'x-environment-runner-version': deps.runnerVersion,
+    }
+    // Anthropic-specific headers: only send to Anthropic-hosted endpoints.
+    // Self-hosted bridge servers do not need these.
+    if (isAnthropicHost) {
+      headers['anthropic-version'] = '2023-06-01'
+      headers['anthropic-beta'] = BETA_HEADER
     }
     const deviceToken = deps.getTrustedDeviceToken?.()
     if (deviceToken) {
@@ -90,10 +99,15 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
 
   function resolveAuth(): string {
     const accessToken = deps.getAccessToken()
-    if (!accessToken) {
-      throw new Error(BRIDGE_LOGIN_INSTRUCTION)
+    if (accessToken) {
+      return accessToken
     }
-    return accessToken
+    // Self-hosted bridge servers may not require auth.
+    // Use an empty bearer token rather than failing outright.
+    if (!isAnthropicHost) {
+      return ''
+    }
+    throw new Error(BRIDGE_LOGIN_INSTRUCTION)
   }
 
   /**

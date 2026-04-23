@@ -55,6 +55,7 @@ async function handleOAuth401Error(): Promise<boolean> { return false }
 import {
   getBridgeAccessToken,
   getBridgeBaseUrl,
+  getBridgeBaseUrlOverride,
   getBridgeTokenOverride,
 } from './bridgeConfig.ts'
 import {
@@ -145,31 +146,35 @@ export async function initReplBridge(
   // since each implementation has its own floor (tengu_bridge_min_version
   // for v1, tengu_bridge_repl_v2_config.min_version for v2).
 
-  // 2. Check OAuth — must be signed in with claude.ai. Runs before the
-  // policy check so console-auth users get the actionable "/login" hint
-  // instead of a misleading policy error from a stale/wrong-org cache.
-  if (!getBridgeAccessToken()) {
+  // 2. Check OAuth — must be signed in with claude.ai unless a custom bridge
+  // server is configured (self-hosted mode does not require Anthropic OAuth).
+  const customBaseUrl = getBridgeBaseUrlOverride()
+  if (!customBaseUrl && !getBridgeAccessToken()) {
     logBridgeSkip('no_oauth', '[bridge:repl] Skipping: no OAuth tokens')
     onStateChange?.('failed', '/login')
     return null
   }
 
-  // 3. Check organization policy — remote control may be disabled
-  await waitForPolicyLimitsToLoad()
-  if (!isPolicyAllowed('allow_remote_control')) {
-    logBridgeSkip(
-      'policy_denied',
-      '[bridge:repl] Skipping: allow_remote_control policy not allowed',
-    )
-    onStateChange?.('failed', "disabled by your organization's policy")
-    return null
+  // 3. Check organization policy — remote control may be disabled.
+  // Skip policy check when using a self-hosted bridge server.
+  if (!customBaseUrl) {
+    await waitForPolicyLimitsToLoad()
+    if (!isPolicyAllowed('allow_remote_control')) {
+      logBridgeSkip(
+        'policy_denied',
+        '[bridge:repl] Skipping: allow_remote_control policy not allowed',
+      )
+      onStateChange?.('failed', "disabled by your organization's policy")
+      return null
+    }
   }
 
-  // When CLAUDE_BRIDGE_OAUTH_TOKEN is set (ant-only local dev), the bridge
+  // When CLAUDE_BRIDGE_OAUTH_TOKEN is set (custom token override), the bridge
   // uses that token directly via getBridgeAccessToken() — keychain state is
   // irrelevant. Skip 2b/2c to preserve that decoupling: an expired keychain
   // token shouldn't block a bridge connection that doesn't use it.
-  if (!getBridgeTokenOverride()) {
+  // Also skip when using a self-hosted server without Anthropic OAuth.
+  if (!customBaseUrl && !getBridgeTokenOverride()) {
     // 2a. Cross-process backoff. If N prior processes already saw this exact
     // dead token (matched by expiresAt), skip silently — no event, no refresh
     // attempt. The count threshold tolerates transient refresh failures (auth

@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto'
+import { getBridgeBaseUrl } from '../bridge/bridgeConfig.ts'
 import { getOauthConfig } from '../constants/oauth.ts'
 import type { SDKMessage } from '../entrypoints/agentSdkTypes.ts'
 import type {
@@ -105,16 +106,23 @@ export class SessionsWebSocket {
 
     this.state = 'connecting'
 
-    const baseUrl = getOauthConfig().BASE_API_URL.replace('https://', 'wss://')
+    // Use custom bridge base URL if configured, otherwise fall back to default.
+    const bridgeBaseUrl = getBridgeBaseUrl()
+    const wsProtocol = bridgeBaseUrl.startsWith('https://') ? 'wss://' : 'ws://'
+    const baseUrl = bridgeBaseUrl.replace(/^https?:\/\//, wsProtocol)
     const url = `${baseUrl}/v1/sessions/ws/${this.sessionId}/subscribe?organization_uuid=${this.orgUuid}`
 
     logForDebugging(`[SessionsWebSocket] Connecting to ${url}`)
 
     // Get fresh token for each connection attempt
     const accessToken = this.getAccessToken()
-    const headers = {
+    const isAnthropicHost =
+      bridgeBaseUrl.includes('anthropic.com') || bridgeBaseUrl.includes('claude.ai')
+    const headers: Record<string, string> = {
       Authorization: `Bearer ${accessToken}`,
-      'anthropic-version': '2023-06-01',
+    }
+    if (isAnthropicHost) {
+      headers['anthropic-version'] = '2023-06-01'
     }
 
     if (typeof Bun !== 'undefined') {

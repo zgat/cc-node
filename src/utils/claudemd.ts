@@ -2,7 +2,7 @@
  * Files are loaded in the following order:
  *
  * 1. Managed memory (eg. /etc/cc-node/ccnode.md) - Global instructions for all users
- * 2. User memory (~/.claude/ccnode.md) - Private global instructions for all projects
+ * 2. User memory (~/.ccnode/ccnode.md, fallback ~/.claude/CLAUDE.md) - Private global instructions for all projects
  * 3. Project memory (ccnode.md, .ccnode.md, .claude/ccnode.md, and .claude/rules/*.md in project roots) - Instructions checked into the codebase
  * 4. Local memory (ccnode.local.md in project roots) - Private project-specific instructions
  *
@@ -10,7 +10,7 @@
  * with the model paying more attention to them.
  *
  * File discovery:
- * - User memory is loaded from the user's home directory
+ * - User memory is loaded from ~/.ccnode/ (with ~/.claude/CLAUDE.md as backward-compatible fallback)
  * - Project and Local files are discovered by traversing from the current directory up to root
  * - Files closer to the current directory have higher priority (loaded later)
  * - ccnode.md takes priority over CLAUDE.md (backward compatibility)

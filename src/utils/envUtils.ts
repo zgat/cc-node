@@ -17,6 +17,17 @@ export function getTeamsDir(): string {
   return join(getClaudeConfigHomeDir(), 'teams')
 }
 
+// CC Node's own config directory, separate from Claude's.
+// Used for memory files (ccnode.md) and other CC Node-specific data.
+export const getCcNodeConfigHomeDir = memoize(
+  (): string => {
+    return (
+      process.env.CCNODE_CONFIG_DIR ?? join(homedir(), '.ccnode')
+    ).normalize('NFC')
+  },
+  () => process.env.CCNODE_CONFIG_DIR,
+)
+
 /**
  * Check if NODE_OPTIONS contains a specific flag.
  * Splits on whitespace and checks for exact match to avoid false positives.

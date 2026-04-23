@@ -1,6 +1,6 @@
 # CC Node
 
-A Node.js-compatible port of CC Node, originally built for Bun. This version uses **esbuild** for bundling and runs on standard Node.js 18+.
+A Node.js-compatible terminal AI coding assistant, originally ported from Anthropic's Claude Code CLI. This version uses **esbuild** for bundling and runs on standard Node.js 18+.
 
 ## Features
 
@@ -10,6 +10,7 @@ A Node.js-compatible port of CC Node, originally built for Bun. This version use
 - MCP (Model Context Protocol) server support
 - IDE bridge mode (VS Code / JetBrains extensions)
 - Multi-agent coordination and task management
+- **Project instruction files**: `ccnode.md` as the primary instruction file (falls back to `CLAUDE.md` for backward compatibility), plus `ccnode.local.md` for personal preferences
 
 ## Requirements
 
@@ -48,6 +49,21 @@ npm run typecheck
 npm run dev
 ```
 
+## Instruction Files
+
+CC Node loads per-project instructions automatically. These are markdown files that provide context to the AI about how to work in a specific repository.
+
+| File | Purpose | Scope |
+|------|---------|-------|
+| `ccnode.md` | Team-shared project instructions | Checked into source control |
+| `ccnode.local.md` | Personal preferences for this project | Gitignored, private |
+| `.ccnode.md` | Hidden variant of project instructions | Same as `ccnode.md` |
+| `~/.ccnode/ccnode.md` | Global user-level instructions | Applies to all projects |
+
+For backward compatibility, `CLAUDE.md` and `CLAUDE.local.md` (and their hidden variants `.CLAUDE.md`, `.CLAUDE.local.md`) are still recognized as fallbacks. If both `ccnode.md` and `CLAUDE.md` exist in the same directory, `ccnode.md` takes priority. The global user fallback is `~/.claude/CLAUDE.md`.
+
+Use `/init` to generate these files automatically based on your codebase.
+
 ## Environment Variables
 
 | Variable | Description |
@@ -84,7 +100,7 @@ The build script (`scripts/build.js`) bundles 4 entry points:
 - **Import extensions**: Source uses `.js` extensions in imports even for `.ts`/`.tsx` files; the esbuild plugin handles resolution
 - **Feature flags**: esbuild `define` replaces flags like `FEATURE_BRIDGE_MODE` at build time for dead-code elimination
 - **Color diff rendering**: The npm package `color-diff-napi` is a placeholder with no real native code. This port uses `src/native-ts/color-diff/index.ts` — a pure TypeScript implementation that uses `highlight.js` for syntax highlighting and the `diff` package for word-level diffs, producing ANSI-colored terminal output aligned with the original Rust module.
-- **Claude in Chrome**: The original `@ant/claude-for-chrome-mcp` (private Chrome extension + Native Messaging) has been replaced with the official Google `chrome-devtools-mcp` server, which controls Chrome directly via Puppeteer and the DevTools Protocol.
+- **Browser automation**: The original `@ant/claude-for-chrome-mcp` (private Chrome extension + Native Messaging) has been replaced with the official Google `chrome-devtools-mcp` server, which controls Chrome directly via Puppeteer and the DevTools Protocol.
 - **Removed internal placeholder dependencies**: `audio-capture-napi` was removed (voice falls back to SoX/arecord), `modifiers-napi` was removed with a safe runtime fallback, and the dead `@anthropic-ai/claude-agent-sdk` type import was cleaned up.
 - **Keybinding change**: The "think" toggle keybinding has been remapped from `Cmd+T` (`meta+t`) to `Tab` (`tab`).
 - **Computer Use (TODO)**: The `@ant/computer-use-mcp`, `@ant/computer-use-input`, and `@ant/computer-use-swift` packages are Anthropic-internal native modules and are currently stubbed. Real Computer Use functionality (GUI automation, screenshots, native input) is not yet implemented in this port.

@@ -17,7 +17,7 @@ import { registerCleanup } from './cleanupRegistry.ts'
 import { logForDebugging } from './debug.ts'
 import { logForDiagnosticsNoPII } from './diagLogs.ts'
 import { getGlobalClaudeFile } from './env.ts'
-import { getClaudeConfigHomeDir, isEnvTruthy } from './envUtils.ts'
+import { getCcNodeConfigHomeDir, getClaudeConfigHomeDir, isEnvTruthy } from './envUtils.ts'
 import { ConfigParseError, getErrnoCode } from './errors.ts'
 import { writeFileSyncAndFlush_DEPRECATED } from './file.ts'
 import { getFsImplementation } from './fsOperations.ts'
@@ -1781,7 +1781,7 @@ export function getMemoryPath(memoryType: MemoryType): string {
 
   switch (memoryType) {
     case 'User':
-      return join(getClaudeConfigHomeDir(), 'ccnode.md')
+      return join(getCcNodeConfigHomeDir(), 'ccnode.md')
     case 'Local':
       return join(cwd, 'ccnode.local.md')
     case 'Project':
