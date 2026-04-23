@@ -406,12 +406,6 @@ export function startDeferredPrefetches(): void {
   void getUserContext();
   prefetchSystemContextIfSafe();
   void getRelevantTips();
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) && !isEnvTruthy(process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH)) {
-    void prefetchAwsCredentialsAndBedRockInfoIfSafe();
-  }
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) && !isEnvTruthy(process.env.CLAUDE_CODE_SKIP_VERTEX_AUTH)) {
-    void prefetchGcpCredentialsIfSafe();
-  }
   void countFilesRoundedRg(getCwd(), AbortSignal.timeout(3000), []);
 
   // Analytics and feature flag initialization

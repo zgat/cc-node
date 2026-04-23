@@ -247,16 +247,6 @@ const commonOptions = {
     'node:dns',
     // Internal anthropic packages - now stubbed and bundled
     '@ant/*',
-    // AWS SDK - optional
-    '@aws-sdk/client-bedrock',
-    '@aws-sdk/client-sts',
-    '@aws-sdk/*',
-    // Anthropic SDK variants
-    '@anthropic-ai/bedrock-sdk',
-    '@anthropic-ai/foundry-sdk',
-    '@anthropic-ai/vertex-sdk',
-    // Azure
-    '@azure/identity',
     // OpenTelemetry exporters (optional)
     '@opentelemetry/exporter-metrics-otlp-grpc',
     '@opentelemetry/exporter-metrics-otlp-http',
