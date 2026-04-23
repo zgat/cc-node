@@ -4,7 +4,7 @@ import { isUltrareviewEnabled } from './review/ultrareviewEnabled.ts'
 
 // Legal wants the explicit surface name plus a docs link visible before the
 // user triggers, so the description carries "CC Node on the web" + URL.
-const CCR_TERMS_URL = 'https://code.claude.com/docs/en/claude-code-on-the-web'
+const CCR_TERMS_URL = 'https://github.com/zgat/cc-node'
 
 const LOCAL_REVIEW_PROMPT = (args: string) => `
       You are an expert code reviewer. Follow these steps:

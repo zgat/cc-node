@@ -16,11 +16,11 @@ export const getManagedFilePath = memoize(function (): string {
 
   switch (getPlatform()) {
     case 'macos':
-      return '/Library/Application Support/ClaudeCode'
+      return '/Library/Application Support/CCNode'
     case 'windows':
-      return 'C:\\Program Files\\ClaudeCode'
+      return 'C:\\Program Files\\CCNode'
     default:
-      return '/etc/claude-code'
+      return '/etc/cc-node'
   }
 })
 

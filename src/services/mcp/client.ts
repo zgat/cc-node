@@ -364,7 +364,7 @@ function handleRemoteAuthFailure(
  * Fetch wrapper for claude.ai proxy connections. Attaches the OAuth bearer
  * token and retries once on 401 via handleOAuth401Error (force-refresh).
  *
- * The Anthropic API path has this retry (withRetry.ts, grove.ts) to handle
+ * The API path has this retry (withRetry.ts, grove.ts) to handle
  * memoize-cache staleness and clock drift. Without the same here, a single
  * stale token mass-401s every claude.ai connector and sticks them all in the
  * 15-min needs-auth cache.
@@ -964,10 +964,10 @@ export const connectToServer = memoize(
 
       const client = new Client(
         {
-          name: 'claude-code',
+          name: 'cc-node',
           title: 'CC Node',
           version: MACRO.VERSION ?? 'unknown',
-          description: "Anthropic's agentic coding tool",
+          description: "'s agentic coding tool",
           websiteUrl: PRODUCT_URL,
         },
         {
@@ -3259,10 +3259,10 @@ export async function setupSdkMcpClients(
 
       const client = new Client(
         {
-          name: 'claude-code',
+          name: 'cc-node',
           title: 'CC Node',
           version: MACRO.VERSION ?? 'unknown',
-          description: "Anthropic's agentic coding tool",
+          description: "'s agentic coding tool",
           websiteUrl: PRODUCT_URL,
         },
         {

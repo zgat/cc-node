@@ -71,7 +71,7 @@ export async function isChromeExtensionInstalled(): Promise<boolean> {
  * Setup Claude in Chrome MCP server and tools
  *
  * Uses the official Google chrome-devtools-mcp server (spawned via
- * --claude-in-chrome-mcp) instead of the original Anthropic Chrome extension
+ * --claude-in-chrome-mcp) instead of the original  Chrome extension
  * + Native Messaging stack.
  *
  * @returns MCP config and allowed tools

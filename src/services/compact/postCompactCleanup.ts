@@ -7,9 +7,8 @@ import { clearClassifierApprovals } from '../../utils/classifierApprovals.ts'
 import { resetGetMemoryFilesCache } from '../../utils/claudemd.ts'
 import { clearSessionMessagesCache } from '../../utils/sessionStorage.ts'
 import { clearBetaTracingState } from '../../utils/telemetry/betaSessionTracing.ts'
-import { resetMicrocompactState } from './microCompact.ts'
-
 /**
+ * Run cleanup of caches and tracking state after compaction.
  * Run cleanup of caches and tracking state after compaction.
  * Call this after both auto-compact and manual /compact to free memory
  * held by tracking structures that are invalidated by compaction.
@@ -38,7 +37,6 @@ export function runPostCompactCleanup(querySource?: QuerySource): void {
     querySource.startsWith('repl_main_thread') ||
     querySource === 'sdk'
 
-  resetMicrocompactState()
   if (feature('CONTEXT_COLLAPSE')) {
     if (isMainThreadCompact) {
       /* eslint-disable @typescript-eslint/no-require-imports */

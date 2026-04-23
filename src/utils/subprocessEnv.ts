@@ -13,7 +13,7 @@ import { isEnvTruthy } from './envUtils.ts'
  * expires when the workflow ends.
  */
 const GHA_SUBPROCESS_SCRUB = [
-  // Anthropic auth — claude re-reads these per-request, subprocesses don't need them
+  //  auth — claude re-reads these per-request, subprocesses don't need them
   'ANTHROPIC_API_KEY',
   'CLAUDE_CODE_OAUTH_TOKEN',
   'ANTHROPIC_AUTH_TOKEN',
@@ -44,7 +44,7 @@ const GHA_SUBPROCESS_SCRUB = [
   'ACTIONS_RUNTIME_TOKEN',
   'ACTIONS_RUNTIME_URL',
 
-  // claude-code-action-specific duplicates — action JS consumes these during
+  // cc-node-action-specific duplicates — action JS consumes these during
   // prepare, before spawning claude. ALL_INPUTS contains anthropic_api_key as JSON.
   'ALL_INPUTS',
   'OVERRIDE_GITHUB_TOKEN',
@@ -57,7 +57,7 @@ const GHA_SUBPROCESS_SCRUB = [
  * spawning subprocesses (Bash tool, shell snapshot, MCP stdio servers, LSP
  * servers, shell hooks).
  *
- * Gated on CLAUDE_CODE_SUBPROCESS_ENV_SCRUB. claude-code-action sets this
+ * Gated on CLAUDE_CODE_SUBPROCESS_ENV_SCRUB. cc-node-action sets this
  * automatically when `allowed_non_write_users` is configured — the flag that
  * exposes a workflow to untrusted content (prompt injection surface).
  */

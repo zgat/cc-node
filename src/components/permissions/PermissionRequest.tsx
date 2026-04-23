@@ -134,7 +134,7 @@ function getNotificationMessage(toolUseConfirm: ToolUseConfirm): string {
     return 'CC Node wants to enter plan mode';
   }
   if (feature('REVIEW_ARTIFACT') && toolUseConfirm.tool === ReviewArtifactTool) {
-    return 'Claude needs your approval for a review artifact';
+    return 'CC Node needs your approval for a review artifact';
   }
   if (!toolName || toolName.trim() === '') {
     return 'CC Node needs your attention';

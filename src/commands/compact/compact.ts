@@ -194,9 +194,7 @@ async function compactViaReactive(
       }
     }
 
-    // Mirrors the post-success cleanup in tryReactiveCompact, minus
-    // resetMicrocompactState — processSlashCommand calls that for all
-    // type:'compact' results.
+    // Mirrors the post-success cleanup in tryReactiveCompact.
     setLastSummarizedMessageId(undefined)
     runPostCompactCleanup()
     suppressCompactWarning()

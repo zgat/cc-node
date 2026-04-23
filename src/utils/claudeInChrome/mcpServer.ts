@@ -11,7 +11,7 @@ import { logForDebugging } from '../debug.ts'
 /**
  * Runs the Claude in Chrome MCP server.
  *
- * The original Anthropic implementation used a bundled Chrome extension with
+ * The original  implementation used a bundled Chrome extension with
  * Native Messaging. This port replaces it with the official Google
  * chrome-devtools-mcp server, which controls Chrome directly via Puppeteer
  * and the DevTools Protocol.

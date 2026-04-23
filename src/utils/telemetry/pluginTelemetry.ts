@@ -58,7 +58,7 @@ export function hashPluginId(name: string, marketplace?: string): string {
  * (managed/user/project/local) which is installation-target — this is
  * marketplace-origin.
  *
- * - official: from an allowlisted Anthropic marketplace
+ * - official: from an allowlisted  marketplace
  * - default-bundle: ships with product (@builtin), auto-enabled
  * - org: enterprise admin-pushed via managed settings (policySettings)
  * - user-local: user added marketplace or local plugin
@@ -142,7 +142,7 @@ export function buildPluginTelemetryFields(
   is_official_plugin: boolean
 } {
   const scope = getTelemetryPluginScope(name, marketplace, managedNames)
-  // Both official marketplaces and builtin plugins are Anthropic-controlled
+  // Both official marketplaces and builtin plugins are -controlled
   // — safe to expose real names in the redacted columns.
   const isAnthropicControlled =
     scope === 'official' || scope === 'default-bundle'

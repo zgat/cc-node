@@ -12,7 +12,7 @@ import { getBranch } from '../utils/git.ts'
 
 const GLOBAL_KEYTERMS: readonly string[] = [
   // Terms Deepgram consistently mangles without keyword hints.
-  // Note: "Claude" and "Anthropic" are already server-side base keyterms.
+  // Note: "CC Node" and "Anthropic" are already server-side base keyterms.
   // Avoid terms nobody speaks aloud as-spelled (stdout → "standard out").
   'MCP',
   'symlink',

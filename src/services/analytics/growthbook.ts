@@ -425,7 +425,7 @@ function isGrowthBookEnabled(): boolean {
 }
 
 /**
- * Hostname of ANTHROPIC_BASE_URL when it points at a non-Anthropic proxy.
+ * Hostname of ANTHROPIC_BASE_URL when it points at a non- proxy.
  *
  * Enterprise-proxy deployments (Epic, Marble, etc.) typically use
  * apiKeyHelper auth, which means isAnthropicAuthEnabled() returns false and

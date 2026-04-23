@@ -52,7 +52,7 @@ export async function createBridgeSession({
   getAccessToken?: () => string | undefined
   permissionMode?: string
 }): Promise<string | null> {
-  // OAuth removed — session creation requires Anthropic account authentication
+  // OAuth removed — session creation requires  account authentication
   logForDebugging('[bridge] Session creation skipped: OAuth not available in this build')
   return null
 }

@@ -1,5 +1,5 @@
 /**
- * Preconnect to the Anthropic API to overlap TCP+TLS handshake with startup.
+ * Preconnect to the API to overlap TCP+TLS handshake with startup.
  *
  * The TCP+TLS handshake is ~100-200ms that normally blocks inside the first
  * API call. Kicking a fire-and-forget fetch during init lets the handshake

@@ -27,8 +27,9 @@ import {
 } from './shellConfig.ts'
 import { jsonParse } from './slowOperations.ts'
 
-const GCS_BUCKET_URL =
-  'https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases'
+// NOTE: GCS-based updates are for native/package-manager installs.
+// For this git-based port, `ccnode update` uses git pull + rebuild instead.
+const GCS_BUCKET_URL = 'https://storage.googleapis.com/cc-node-dist/claude-code-releases'
 
 const GITHUB_REPO = 'zgat/cc-node'
 
@@ -89,7 +90,7 @@ It looks like your version of CC Node (${MACRO.VERSION}) needs an update.
 A newer version (${versionConfig.minVersion} or higher) is required to continue.
 
 To update, please run:
-    claude update
+    ccnode update
 
 This will ensure you have access to the latest features and improvements.
 `)
@@ -486,7 +487,7 @@ This configuration is not supported for updates.
 To fix this issue:
   1. Install Node.js within your Linux distribution: e.g. sudo apt install nodejs npm
   2. Make sure Linux NPM is in your PATH before the Windows version
-  3. Try updating again with 'claude update'
+  3. Try updating again with 'ccnode update'
 `)
       return 'install_failed'
     }
@@ -519,7 +520,7 @@ To fix this issue:
     )
     if (installResult.code !== 0) {
       const error = new AutoUpdaterError(
-        `Failed to install new version of claude: ${installResult.stdout} ${installResult.stderr}`,
+        `Failed to install new version of ccnode: ${installResult.stdout} ${installResult.stderr}`,
       )
       logError(error)
       return 'install_failed'
@@ -539,7 +540,7 @@ To fix this issue:
 }
 
 /**
- * Remove claude aliases from shell configuration files
+ * Remove claude aliases from shell configuration files (legacy cleanup)
  * This helps clean up old installation methods when switching to native or npm global
  */
 async function removeClaudeAliasesFromShellConfigs(): Promise<void> {

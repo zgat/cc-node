@@ -1,9 +1,9 @@
 #!/bin/bash
-# RISC-V install script for claude-code-node
+# RISC-V install script for CC Node
 
 set -e
 
-echo "=== Claude Code Node.js - RISC-V Install Script ==="
+echo "=== CC Node - RISC-V Install Script ==="
 echo "Architecture: $(uname -m)"
 echo ""
 

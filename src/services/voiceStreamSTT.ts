@@ -1,8 +1,8 @@
-// Anthropic voice_stream speech-to-text client for push-to-talk.
+// voice_stream speech-to-text client for push-to-talk.
 //
 // Only reachable in ant builds (gated by feature('VOICE_MODE') in useVoice.ts import).
 //
-// Connects to Anthropic's voice_stream WebSocket endpoint using the same
+// Connects to the voice_stream WebSocket endpoint using the same
 // OAuth credentials as CC Node.  The endpoint uses conversation_engine
 // backed models for speech-to-text.  Designed for hold-to-talk: hold the
 // keybinding to record, release to stop and submit.
@@ -97,7 +97,7 @@ type VoiceStreamMessage =
 
 export function isVoiceStreamAvailable(): boolean {
   // voice_stream uses the same OAuth as CC Node — available when the
-  // user is authenticated with Anthropic (Claude.ai subscriber or has
+  // user is authenticated (Claude.ai subscriber or has
   // valid OAuth tokens).
   if (!isAnthropicAuthEnabled()) {
     return false

@@ -471,7 +471,7 @@ export async function initializeTelemetry() {
   // Create base resource with service attributes
   const platform = getPlatform()
   const baseAttributes: Record<string, string> = {
-    [ATTR_SERVICE_NAME]: 'claude-code',
+    [ATTR_SERVICE_NAME]: 'cc-node',
     [ATTR_SERVICE_VERSION]: MACRO.VERSION,
   }
 

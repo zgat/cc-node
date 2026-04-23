@@ -196,7 +196,6 @@ export const SOURCES = [
 
 /**
  * The JSON Schema URL for CC Node settings
- * You can edit the contents at https://github.com/SchemaStore/schemastore/blob/master/src/schemas/json/claude-code-settings.json
  */
 export const CLAUDE_CODE_SETTINGS_SCHEMA_URL =
-  'https://json.schemastore.org/claude-code-settings.json'
+  'https://json.schemastore.org/cc-node-settings.json'

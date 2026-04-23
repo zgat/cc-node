@@ -29,7 +29,7 @@ export function isModifierPressed(modifier: ModifierKey): boolean {
     return false
   }
   // Dynamic import to avoid loading native module at top level.
-  // The npm package is an Anthropic-internal placeholder; gracefully
+  // The npm package is an -internal placeholder; gracefully
   // degrade to false when it is unavailable or empty.
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports

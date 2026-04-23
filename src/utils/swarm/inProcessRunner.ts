@@ -29,7 +29,6 @@ import {
   compactConversation,
   ERROR_MESSAGE_USER_ABORT,
 } from '../../services/compact/compact.ts'
-import { resetMicrocompactState } from '../../services/compact/microCompact.ts'
 import type { AppState } from '../../state/AppState.tsx'
 import type { Tool, ToolUseContext } from '../../Tool.ts'
 import { appendTeammateMessage } from '../../tasks/InProcessTeammateTask/InProcessTeammateTask.tsx'
@@ -1102,9 +1101,6 @@ export async function runInProcessTeammate(
           true, // isAutoCompact
         )
         contextMessages = buildPostCompactMessages(compactedSummary)
-        // Reset microcompact state since full compact replaces all
-        // messages — old tool IDs are no longer relevant
-        resetMicrocompactState()
         // Reset content replacement state — compact replaces all messages
         // so old tool_use_ids are gone. Stale Map entries are harmless
         // (UUID keys never match) but accumulate memory over long runs.

@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to CC Node when working with code in this repository.
 
 ## Project Overview
 
-This is a **Node.js port of the Claude Code CLI**, originally built for Bun. It is a terminal-based React application using a custom Ink renderer. The codebase is large (~1,900 files, 500K+ lines) and is organized around a tool/command architecture, a custom terminal UI renderer, and an LLM query engine.
+This is **CC Node**, a terminal-based AI coding assistant using a custom Ink renderer. Originally ported from Anthropic's Claude Code CLI. The codebase is large (~1,900 files, 500K+ lines) and is organized around a tool/command architecture, a custom terminal UI renderer, and an LLM query engine.
 
 ## Build & Development Commands
 

@@ -111,7 +111,15 @@
       "Bash(apt-get install *)",
       "Bash(timeout 20 expect /tmp/test_exit3.tcl)",
       "Bash(echo \"EXIT_CODE=$?\")",
-      "Bash(perl *)"
+      "Bash(perl *)",
+      "Bash(grep -rn bAnthropicb src/ --include=*.ts --include=*.tsx --include=*.js)",
+      "Bash(grep -rn bclaudeb src/ --include=*.ts --include=*.tsx --include=*.js -i)",
+      "Bash(grep -rn bClaudeb src/ --include=*.ts --include=*.tsx --include=*.js)",
+      "Bash(sed -n '267460,267470p' dist/main.js)",
+      "Bash(sed -n '267750,267760p' dist/main.js)"
+    ],
+    "additionalDirectories": [
+      "/root/kimi-cli"
     ]
   }
 }

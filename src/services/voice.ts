@@ -11,7 +11,7 @@ import { isEnvTruthy, isRunningOnHomespace } from '../utils/envUtils.ts'
 import { logError } from '../utils/log.ts'
 import { getPlatform } from '../utils/platform.ts'
 
-// The native audio module (audio-capture-napi) is an Anthropic-internal
+// The native audio module (audio-capture-napi) is an internal
 // package that is not available on npm. This port removes the dependency
 // and always reports native audio as unavailable, falling back to SoX
 // (macOS/Linux) or arecord (Linux) for voice recording.

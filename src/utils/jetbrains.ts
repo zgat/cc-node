@@ -3,7 +3,7 @@ import { join } from 'path'
 import { getFsImplementation } from '../utils/fsOperations.ts'
 import type { IdeType } from './ide.ts'
 
-const PLUGIN_PREFIX = 'claude-code-jetbrains-plugin'
+const PLUGIN_PREFIX = 'cc-node-jetbrains-plugin'
 
 // Map of IDE names to their directory patterns
 const ideNameToDirMap: { [key: string]: string[] } = {

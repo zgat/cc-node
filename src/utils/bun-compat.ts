@@ -174,7 +174,7 @@ export interface BunListenOptions<T> {
 export interface BunListener<T> {
   hostname: string;
   port: number;
-  stop(): Promise<void;
+  stop(): Promise<void>;
 }
 
 export function bunListen<T extends { data: Buffer }>(

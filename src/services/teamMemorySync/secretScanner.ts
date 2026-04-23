@@ -40,7 +40,7 @@ export type SecretMatch = {
 // High-confidence patterns from gitleaks with distinctive prefixes.
 // Ordered roughly by likelihood of appearing in dev-team content.
 
-// Anthropic API key prefix, assembled at runtime so the literal byte
+// API key prefix, assembled at runtime so the literal byte
 // sequence isn't present in the external bundle (excluded-strings check).
 // join() is not constant-folded by the minifier.
 const ANT_KEY_PFX = ['sk', 'ant', 'api'].join('-')

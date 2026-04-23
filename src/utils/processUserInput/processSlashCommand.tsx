@@ -12,7 +12,6 @@ import type { CanUseToolFn } from '../../hooks/useCanUseTool.tsx';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, type AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED, logEvent } from '../../services/analytics/index.ts';
 import { getDumpPromptsPath } from '../../services/api/dumpPrompts.ts';
 import { buildPostCompactMessages } from '../../services/compact/compact.ts';
-import { resetMicrocompactState } from '../../services/compact/microCompact.ts';
 import type { Progress as AgentProgress } from '../../tools/AgentTool/AgentTool.tsx';
 import { runAgent } from '../../tools/AgentTool/runAgent.ts';
 import { renderToolUseProgressMessage } from '../../tools/AgentTool/UI.tsx';
@@ -692,11 +691,6 @@ async function getMessagesForSlashCommand(commandName: string, args: string, set
                 ...result.compactionResult,
                 messagesToKeep: [...(result.compactionResult.messagesToKeep ?? []), ...slashCommandMessages]
               };
-              // Reset microcompact state since full compact replaces all
-              // messages — old tool IDs are no longer relevant. Budget state
-              // (on toolUseContext) needs no reset: stale entries are inert
-              // (UUIDs never repeat, so they're never looked up).
-              resetMicrocompactState();
               return {
                 messages: buildPostCompactMessages(compactionResultWithSlashMessages),
                 shouldQuery: false,

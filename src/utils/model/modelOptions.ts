@@ -394,7 +394,7 @@ function getModelFamilyInfo(
 }
 
 /**
- * Returns a ModelOption for a known Anthropic model with a human-readable
+ * Returns a ModelOption for a known  model with a human-readable
  * label, and an upgrade hint if a newer version is available via the alias.
  * Returns null if the model is not recognized.
  */
@@ -478,7 +478,7 @@ export function getModelOptions(fastMode = false): ModelOption[] {
       getMergedOpus1MOption(fastMode),
     ])
   } else {
-    // Try to show a human-readable label for known Anthropic models, with an
+    // Try to show a human-readable label for known  models, with an
     // upgrade hint if the alias now resolves to a newer version.
     const knownOption = getKnownModelOption(customModel)
     if (knownOption) {

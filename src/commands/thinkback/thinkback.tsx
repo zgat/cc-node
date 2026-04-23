@@ -25,8 +25,8 @@ import { loadAllPlugins } from '../../utils/plugins/pluginLoader.ts';
 import { installSelectedPlugins } from '../../utils/plugins/pluginStartupCheck.ts';
 
 // Marketplace and plugin identifiers - varies by user type
-const INTERNAL_MARKETPLACE_NAME = 'claude-code-marketplace';
-const INTERNAL_MARKETPLACE_REPO = 'anthropics/claude-code-marketplace';
+const INTERNAL_MARKETPLACE_NAME = 'ccnode-marketplace';
+const INTERNAL_MARKETPLACE_REPO = 'zgat/cc-node-marketplace';
 const OFFICIAL_MARKETPLACE_REPO = 'anthropics/claude-plugins-official';
 function getMarketplaceName(): string {
   return "external" === 'ant' ? INTERNAL_MARKETPLACE_NAME : OFFICIAL_MARKETPLACE_NAME;
