@@ -9,6 +9,7 @@ A Node.js-compatible terminal AI coding assistant, originally ported from Anthro
 - 50+ slash commands (`/commit`, `/review`, `/doctor`, `/memory`, etc.)
 - MCP (Model Context Protocol) server support
 - IDE bridge mode (VS Code / JetBrains extensions)
+- **Self-hosted Bridge Server** (`bridge-server/`) — manage CCNode sessions across multiple machines without Anthropic cloud. See [bridge-server/README.md](bridge-server/README.md)
 - Multi-agent coordination and task management
 - **Project instruction files**: `ccnode.md` as the primary instruction file (falls back to `CLAUDE.md` for backward compatibility), plus `ccnode.local.md` for personal preferences
 
@@ -91,6 +92,7 @@ The build script (`scripts/build.js`) bundles 4 entry points:
 - **`src/commands/`** — Slash command implementations (~50 commands)
 - **`src/QueryEngine.ts`** — Core LLM streaming and tool-call loop
 - **`src/bridge/`** — IDE extension bridge
+- **`bridge-server/`** — Self-hosted Bridge server for remote session management (Node.js + Express + WebSocket)
 - **`src/services/mcp/`** — MCP server management
 - **`src/utils/featureFlags.ts`** — Compile-time feature flag replacement for `bun:bundle`
 

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CCNode Bridge Server</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>CCNode Bridge Server</h1>
+      <div id="stats"></div>
+    </header>
+
+    <main>
+      <section id="environments-section">
+        <h2>Environments</h2>
+        <div id="environments-list"></div>
+      </section>
+
+      <section id="sessions-section">
+        <h2>Sessions</h2>
+        <div id="sessions-list"></div>
+      </section>
+
+      <section id="session-detail" class="hidden">
+        <div class="detail-header">
+          <h2 id="detail-title"></h2>
+          <button id="close-detail">Close</button>
+        </div>
+        <div id="detail-state"></div>
+        <div id="permissions-panel"></div>
+        <div id="messages-container"></div>
+        <div class="input-bar">
+          <input id="message-input" type="text" placeholder="Type a message..." />
+          <button id="send-btn">Send</button>
+          <button id="interrupt-btn">Interrupt</button>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
