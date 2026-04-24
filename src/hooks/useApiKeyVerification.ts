@@ -4,7 +4,6 @@ import { verifyApiKey } from '../services/api/claude.ts'
 import {
   getAnthropicApiKeyWithSource,
   getApiKeyFromApiKeyHelper,
-  isAnthropicAuthEnabled,
   isClaudeAISubscriber,
 } from '../utils/auth.ts'
 
@@ -23,17 +22,13 @@ export type ApiKeyVerificationResult = {
 
 export function useApiKeyVerification(): ApiKeyVerificationResult {
   const [status, setStatus] = useState<VerificationStatus>(() => {
-    if (!isAnthropicAuthEnabled() || isClaudeAISubscriber()) {
+    if (isClaudeAISubscriber()) {
       return 'valid'
     }
-    // Use skipRetrievingKeyFromApiKeyHelper to avoid executing apiKeyHelper
-    // before trust dialog is shown (security: prevents RCE via settings.json)
     const { key, source } = getAnthropicApiKeyWithSource({
       skipRetrievingKeyFromApiKeyHelper: true,
     })
-    // If apiKeyHelper is configured, we have a key source even though we
-    // haven't executed it yet - return 'loading' to indicate we'll verify later
-    if (key || source === 'apiKeyHelper') {
+    if (key) {
       return 'loading'
     }
     return 'missing'
@@ -41,12 +36,10 @@ export function useApiKeyVerification(): ApiKeyVerificationResult {
   const [error, setError] = useState<Error | null>(null)
 
   const verify = useCallback(async (): Promise<void> => {
-    if (!isAnthropicAuthEnabled() || isClaudeAISubscriber()) {
+    if (isClaudeAISubscriber()) {
       setStatus('valid')
       return
     }
-    // Warm the apiKeyHelper cache (no-op if not configured), then read from
-    // all sources. getAnthropicApiKeyWithSource() reads the now-warm cache.
     await getApiKeyFromApiKeyHelper(getIsNonInteractiveSession())
     const { key: apiKey, source } = getAnthropicApiKeyWithSource()
     if (!apiKey) {
@@ -66,9 +59,6 @@ export function useApiKeyVerification(): ApiKeyVerificationResult {
       setStatus(newStatus)
       return
     } catch (error) {
-      // This happens when there an error response from the API but it's not an invalid API key error
-      // In this case, we still mark the API key as invalid - but we also log the error so we can
-      // display it to the user to be more helpful
       setError(error as Error)
       const newStatus = 'error'
       setStatus(newStatus)
