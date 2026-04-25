@@ -105,9 +105,9 @@ export function _resetTmuxControlModeProbeForTesting(): void {
 }
 
 /**
- * Runtime env-var check only. Enabled by default for all users.
- * Set CLAUDE_CODE_NO_FLICKER=0 to explicitly disable.
- * Set CLAUDE_CODE_NO_FLICKER=1 to explicitly enable (escape hatch).
+ * Runtime env-var check only. Ants default to on (CLAUDE_CODE_NO_FLICKER=0
+ * to opt out); external users default to off (CLAUDE_CODE_NO_FLICKER=1 to
+ * opt in).
  */
 export function isFullscreenEnvEnabled(): boolean {
   // Explicit user opt-out always wins.
@@ -125,8 +125,7 @@ export function isFullscreenEnvEnabled(): boolean {
     }
     return false
   }
-  // Enabled by default for all users.
-  return true
+  return process.env.USER_TYPE === 'ant'
 }
 
 /**
