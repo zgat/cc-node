@@ -242,7 +242,11 @@ export function getAccountInformation(): UserAccountInfo {
   const { source: authTokenSource } = getAuthTokenSource()
   accountInfo.tokenSource = authTokenSource
   const { key: apiKey, source: apiKeySource } = getAnthropicApiKeyWithSource()
-  if (apiKey) {
+  // Only show apiKeySource when ANTHROPIC_API_KEY is explicitly set.
+  // When the key comes from ANTHROPIC_AUTH_TOKEN (treated as alias),
+  // showing "API key: ANTHROPIC_API_KEY" is confusing — Auth token
+  // line already covers it.
+  if (apiKey && process.env.ANTHROPIC_API_KEY) {
     accountInfo.apiKeySource = apiKeySource
   }
   return accountInfo

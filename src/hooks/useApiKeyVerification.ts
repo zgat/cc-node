@@ -6,6 +6,7 @@ import {
   getApiKeyFromApiKeyHelper,
   isClaudeAISubscriber,
 } from '../utils/auth.ts'
+import { isFirstPartyAnthropicBaseUrl } from '../utils/model/providers.ts'
 
 export type VerificationStatus =
   | 'loading'
@@ -21,8 +22,13 @@ export type ApiKeyVerificationResult = {
 }
 
 export function useApiKeyVerification(): ApiKeyVerificationResult {
+  // Skip verification for non-Anthropic API endpoints (e.g. Kimi/OpenAI-compat
+  // proxies). verifyApiKey uses Anthropic model names (claude-haiku-4-5) that
+  // do not exist on third-party endpoints and would always fail.
+  const skipVerification = !isFirstPartyAnthropicBaseUrl()
+
   const [status, setStatus] = useState<VerificationStatus>(() => {
-    if (isClaudeAISubscriber()) {
+    if (skipVerification || isClaudeAISubscriber()) {
       return 'valid'
     }
     const { key, source } = getAnthropicApiKeyWithSource({
@@ -36,7 +42,7 @@ export function useApiKeyVerification(): ApiKeyVerificationResult {
   const [error, setError] = useState<Error | null>(null)
 
   const verify = useCallback(async (): Promise<void> => {
-    if (isClaudeAISubscriber()) {
+    if (skipVerification || isClaudeAISubscriber()) {
       setStatus('valid')
       return
     }
@@ -64,7 +70,7 @@ export function useApiKeyVerification(): ApiKeyVerificationResult {
       setStatus(newStatus)
       return
     }
-  }, [])
+  }, [skipVerification])
 
   return {
     status,
