@@ -33,6 +33,7 @@ export function SandboxViolationExpandedView() {
   if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
     t1 = () => {
       const store = SandboxManager.getSandboxViolationStore();
+      if (!store) return;
       const unsubscribe = store.subscribe(allViolations => {
         setViolations(allViolations.slice(-10));
         setTotalCount(store.getTotalCount());

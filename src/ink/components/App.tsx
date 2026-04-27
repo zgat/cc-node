@@ -112,6 +112,15 @@ export default class App extends PureComponent<Props, State> {
   // Count how many components enabled raw mode to avoid disabling
   // raw mode until all components don't need it anymore
   rawModeEnabledCount = 0;
+  // Deferred disable timer: when a large component (PromptInput ~14
+  // useInput hooks) unmounts and a replacement mounts in the same React
+  // commit, all cleanups run before all setups. Without deferral the
+  // count briefly hits 0, the terminal enters cooked mode, and keystrokes
+  // (e.g. ctrl+o) get buffered by the line discipline instead of being
+  // delivered immediately. A 0-ms deferral is enough — it lets the new
+  // component's setups run in the same event-loop tick before the disable
+  // actually fires.
+  pendingDisableRawMode: NodeJS.Timeout | null = null;
   internal_eventEmitter = new EventEmitter();
   keyParseState = INITIAL_STATE;
   // Timer for flushing incomplete escape sequences
@@ -219,8 +228,17 @@ export default class App extends PureComponent<Props, State> {
     }
     stdin.setEncoding('utf8');
     if (isEnabled) {
-      // Ensure raw mode is enabled only once
-      if (this.rawModeEnabledCount === 0) {
+      // Cancel any pending deferred disable — a new component is mounting
+      // and needs raw mode. This closes the brief cooked-mode window when
+      // a large component (PromptInput ~14 useInput hooks) unmounts and a
+      // replacement mounts in the same React commit phase.
+      if (this.pendingDisableRawMode) {
+        clearTimeout(this.pendingDisableRawMode);
+        this.pendingDisableRawMode = null;
+      }
+      // Ensure raw mode is enabled only once. Guard <= 0 so a desync
+      // (cleanup without matching setup) doesn't leave us stuck off.
+      if (this.rawModeEnabledCount <= 0) {
         // Stop early input capture right before we add our own readable handler.
         // Both use the same stdin 'readable' + read() pattern, so they can't
         // coexist -- our handler would drain stdin before Ink's can see it.
@@ -265,17 +283,28 @@ export default class App extends PureComponent<Props, State> {
       return;
     }
 
-    // Disable raw mode only when no components left that are using it
-    if (--this.rawModeEnabledCount === 0) {
-      this.props.stdout.write(DISABLE_MODIFY_OTHER_KEYS);
-      this.props.stdout.write(DISABLE_KITTY_KEYBOARD);
-      // Disable terminal focus reporting (DECSET 1004)
-      this.props.stdout.write(DFE);
-      // Disable bracketed paste mode
-      this.props.stdout.write(DBP);
-      stdin.setRawMode(false);
-      stdin.removeListener('readable', this.handleReadable);
-      stdin.unref();
+    // Disable raw mode only when no components left that are using it.
+    // Guard > 0 so a desync (cleanup without matching setup) can't drive
+    // the count negative and break re-enable on the next mount.
+    if (this.rawModeEnabledCount > 0 && --this.rawModeEnabledCount === 0) {
+      // Defer the actual disable by 0ms. In a React commit where a large
+      // component unmounts and a replacement mounts, all cleanups run
+      // before all setups. Without deferral the count briefly hits 0,
+      // the terminal enters cooked mode, and keystrokes get buffered.
+      this.pendingDisableRawMode = setTimeout(() => {
+        this.pendingDisableRawMode = null;
+        if (this.rawModeEnabledCount === 0) {
+          this.props.stdout.write(DISABLE_MODIFY_OTHER_KEYS);
+          this.props.stdout.write(DISABLE_KITTY_KEYBOARD);
+          // Disable terminal focus reporting (DECSET 1004)
+          this.props.stdout.write(DFE);
+          // Disable bracketed paste mode
+          this.props.stdout.write(DBP);
+          stdin.setRawMode(false);
+          stdin.removeListener('readable', this.handleReadable);
+          stdin.unref();
+        }
+      }, 0);
     }
   };
 

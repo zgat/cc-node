@@ -609,7 +609,10 @@ export function REPL({
   // Log REPL mount/unmount lifecycle
   useEffect(() => {
     logForDebugging(`[REPL:mount] REPL mounted, disabled=${disabled}`);
-    return () => logForDebugging(`[REPL:unmount] REPL unmounting`);
+    return () => {
+      const stack = new Error('REPL unmounting').stack;
+      logForDebugging(`[REPL:unmount] REPL unmounting, stack:\n${stack}`);
+    };
   }, [disabled]);
 
   // Agent definition is state so /resume can update it mid-session
@@ -4235,6 +4238,15 @@ export function REPL({
   {
     isActive: screen === 'transcript' && virtualScrollActive && !searchOpen && !dumpMode
   });
+  // Non-fullscreen transcript mode needs an extra raw-mode anchor.
+  // PromptInput carries ~10 useInput hooks; when it unmounts the count
+  // drops sharply. In theory GlobalKeybindingHandlers etc. keep the
+  // count positive, but real-world React commit ordering can briefly
+  // leave the terminal in cooked mode between cleanup and setup.
+  // This unconditional hook (gated by isActive) closes the gap.
+  useInput(() => {}, {
+    isActive: screen === 'transcript' && !virtualScrollActive,
+  });
   const {
     setQuery: setHighlight,
     scanElement,
@@ -4396,6 +4408,7 @@ export function REPL({
     // and transcript-mode are mutually exclusive (this early return), so
     // only one ScrollBox is ever mounted at a time.
     const transcriptScrollRef = isFullscreenEnvEnabled() && !disableVirtualScroll && !dumpMode ? scrollRef : undefined;
+    logForDebugging(`[REPL] entering transcript branch, fullscreen=${isFullscreenEnvEnabled()}, virtualScroll=${!disableVirtualScroll}, dumpMode=${dumpMode}, transcriptScrollRef=${!!transcriptScrollRef}`);
     const transcriptMessagesElement = <Messages messages={transcriptMessages} tools={tools} commands={commands} verbose={true} toolJSX={null} toolUseConfirmQueue={[]} inProgressToolUseIDs={inProgressToolUseIDs} isMessageSelectorVisible={false} conversationId={conversationId} screen={screen} agentDefinitions={agentDefinitions} streamingToolUses={transcriptStreamingToolUses} showAllInTranscript={showAllInTranscript} onOpenRateLimitOptions={handleOpenRateLimitOptions} isLoading={isLoading} hidePastThinking={true} streamingThinking={streamingThinking} scrollRef={transcriptScrollRef} jumpRef={jumpRef} onSearchMatchesChange={onSearchMatchesChange} scanElement={scanElement} setPositions={setPositions} disableRenderCap={dumpMode} />;
     const transcriptToolJSX = toolJSX && <Box flexDirection="column" width="100%">
         {toolJSX.jsx}
@@ -4554,8 +4567,10 @@ export function REPL({
           PgUp/PgDn/wheel always scroll the transcript behind the modal —
           the modal's inner ScrollBox is not keyboard-driven. onScroll
           stays suppressed while a modal is showing so scroll doesn't
-          stamp divider/pill state. */}
-      <ScrollKeybindingHandler scrollRef={scrollRef} isActive={isFullscreenEnvEnabled() && (centeredModal != null || !focusedInputDialog || focusedInputDialog === 'tool-permission')} onScroll={centeredModal || toolPermissionOverlay || viewedAgentTask ? undefined : composedOnScroll} />
+          stamp divider/pill state.
+          Only render when fullscreen is enabled — isActive=false would
+          disable raw mode and break all keybindings. */}
+      {isFullscreenEnvEnabled() ? <ScrollKeybindingHandler scrollRef={scrollRef} isActive={centeredModal != null || !focusedInputDialog || focusedInputDialog === 'tool-permission'} onScroll={centeredModal || toolPermissionOverlay || viewedAgentTask ? undefined : composedOnScroll} /> : null}
       {feature('MESSAGE_ACTIONS') && isFullscreenEnvEnabled() && !disableMessageActions ? <MessageActionsKeybindings handlers={messageActionHandlers} isActive={cursor !== null} /> : null}
       <CancelRequestHandler {...cancelRequestProps} />
       <MCPConnectionManager key={remountKey} dynamicMcpConfig={dynamicMcpConfig} isStrictMcpConfig={strictMcpConfig}>
