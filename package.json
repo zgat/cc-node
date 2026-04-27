@@ -8,8 +8,8 @@
     "ccnode": "dist/cli.js"
   },
   "scripts": {
-    "build": "node scripts/build.js",
-    "build:watch": "node scripts/build.js --watch",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' node scripts/build.js",
+    "build:watch": "NODE_OPTIONS='--max-old-space-size=8192' node scripts/build.js --watch",
     "dev": "tsx src/main.tsx",
     "typecheck": "tsc --noEmit",
     "start": "node dist/main.js"

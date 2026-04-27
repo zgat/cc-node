@@ -85,6 +85,14 @@ The build script (`scripts/build.js`) bundles 4 entry points:
 | `src/entrypoints/mcp.ts` | `dist/mcp.js` |
 | `src/entrypoints/init.ts` | `dist/init.js` |
 
+### Build Memory
+
+`npm run build` sets `NODE_OPTIONS='--max-old-space-size=8192'` by default in `package.json` to accommodate the large codebase (~500K lines). If you need a different limit, override it at the command line:
+
+```bash
+NODE_OPTIONS="--max-old-space-size=4096" npm run build
+```
+
 ## Architecture
 
 - **`src/ink/`** — Custom Ink renderer fork with a React 19 reconciler
