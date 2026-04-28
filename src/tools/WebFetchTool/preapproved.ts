@@ -13,8 +13,6 @@
 
 export const PREAPPROVED_HOSTS = new Set([
   // 
-  'platform.claude.com',
-  'code.claude.com',
   'modelcontextprotocol.io',
   'github.com/anthropics',
   'agentskills.io',
