@@ -60,7 +60,13 @@ echo ""
 echo "[4/4] Building project..."
 npm run build
 
+# Link binary globally
+echo ""
+echo "[5/5] Linking ccnode binary globally..."
+npm link
+
 echo ""
 echo "=== Installation complete! ==="
+echo "Run: ccnode         (global command)"
 echo "Run: npm run dev    (development)"
 echo "Run: npm start      (production)"
