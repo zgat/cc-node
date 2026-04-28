@@ -10,9 +10,9 @@
   "scripts": {
     "build": "NODE_OPTIONS='--max-old-space-size=8192' node scripts/build.js",
     "build:watch": "NODE_OPTIONS='--max-old-space-size=8192' node scripts/build.js --watch",
-    "dev": "tsx src/main.tsx",
-    "typecheck": "tsc --noEmit",
-    "start": "node dist/main.js"
+    "dev": "NODE_OPTIONS='--max-old-space-size=8192' tsx src/main.tsx",
+    "typecheck": "NODE_OPTIONS='--max-old-space-size=8192' tsc --noEmit",
+    "start": "NODE_OPTIONS='--max-old-space-size=8192' node dist/main.js"
   },
   "engines": {
     "node": ">=18.0.0"
