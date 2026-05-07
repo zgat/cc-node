@@ -44,7 +44,7 @@ function GracePeriodContentBody() {
   let t3;
   if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
     t2 = <Text>· </Text>;
-    t3 = <Text bold={true}>You can help improve Claude </Text>;
+    t3 = <Text bold={true}>You can help improve CC Node </Text>;
     $[2] = t2;
     $[3] = t3;
   } else {
@@ -113,7 +113,7 @@ function PostGracePeriodContentBody() {
   }
   let t3;
   if ($[3] === Symbol.for("react.memo_cache_sentinel")) {
-    t3 = <Box flexDirection="column" gap={1}>{t1}{t2}<Box flexDirection="column"><Text bold={true}>How this affects data retention</Text><Text>Turning ON the improve Claude setting extends data retention from 30 days to 5 years. Turning it OFF keeps the default 30-day data retention. Delete data anytime.</Text></Box></Box>;
+    t3 = <Box flexDirection="column" gap={1}>{t1}{t2}<Box flexDirection="column"><Text bold={true}>How this affects data retention</Text><Text>Turning ON the improve CC Node setting extends data retention from 30 days to 5 years. Turning it OFF keeps the default 30-day data retention. Delete data anytime.</Text></Box></Box>;
     $[3] = t3;
   } else {
     t3 = $[3];
@@ -235,13 +235,13 @@ export function GroveDialog(t0) {
   let t4;
   if ($[8] !== groveConfig?.domain_excluded) {
     t4 = groveConfig?.domain_excluded ? [{
-      label: "Accept terms \xB7 Help improve Claude: OFF (for emails with your domain)",
+      label: "Accept terms \xB7 Help improve CC Node: OFF (for emails with your domain)",
       value: "accept_opt_out"
     }] : [{
-      label: "Accept terms \xB7 Help improve Claude: ON",
+      label: "Accept terms \xB7 Help improve CC Node: ON",
       value: "accept_opt_in"
     }, {
-      label: "Accept terms \xB7 Help improve Claude: OFF",
+      label: "Accept terms \xB7 Help improve CC Node: OFF",
       value: "accept_opt_out"
     }];
     $[8] = groveConfig?.domain_excluded;
@@ -432,7 +432,7 @@ export function PrivacySettingsDialog(t0) {
   }
   let t6;
   if ($[10] === Symbol.for("react.memo_cache_sentinel")) {
-    t6 = <Box width={44}><Text bold={true}>Help improve Claude</Text></Box>;
+    t6 = <Box width={44}><Text bold={true}>Help improve CC Node</Text></Box>;
     $[10] = t6;
   } else {
     t6 = $[10];

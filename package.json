@@ -1,6 +1,6 @@
 {
   "name": "claude-code-node",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "CC Node - Node.js compatible version",
   "type": "module",
   "main": "dist/main.js",

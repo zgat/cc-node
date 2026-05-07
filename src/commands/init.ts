@@ -38,8 +38,8 @@ Use AskUserQuestion to find out what the user wants:
 
 - "Also set up skills and hooks?"
   Options: "Skills + hooks" | "Skills only" | "Hooks only" | "Neither, just ccnode.md"
-  Description for skills: "On-demand capabilities you or Claude invoke with \`/skill-name\` — good for repeatable workflows and reference knowledge."
-  Description for hooks: "Deterministic shell commands that run on tool events (e.g., format after every edit). Claude can't skip them."
+  Description for skills: "On-demand capabilities you or CC Node invoke with \`/skill-name\` — good for repeatable workflows and reference knowledge."
+  Description for hooks: "Deterministic shell commands that run on tool events (e.g., format after every edit). CC Node can't skip them."
 
 ## Phase 2: Explore the codebase
 

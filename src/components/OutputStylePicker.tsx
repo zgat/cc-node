@@ -9,7 +9,7 @@ import type { OptionWithDescription } from './CustomSelect/select.tsx';
 import { Select } from './CustomSelect/select.tsx';
 import { Dialog } from './design-system/Dialog.tsx';
 const DEFAULT_OUTPUT_STYLE_LABEL = 'Default';
-const DEFAULT_OUTPUT_STYLE_DESCRIPTION = 'Claude completes coding tasks efficiently and provides concise responses';
+const DEFAULT_OUTPUT_STYLE_DESCRIPTION = 'CC Node completes coding tasks efficiently and provides concise responses';
 function mapConfigsToOptions(styles: {
   [styleName: string]: OutputStyleConfig | null;
 }): OptionWithDescription[] {
