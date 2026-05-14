@@ -4,14 +4,34 @@ import { feature } from '../utils/featureFlags.ts';
 // eslint-disable-next-line custom-rules/no-top-level-side-effects
 process.env.COREPACK_ENABLE_AUTO_PIN = '0';
 
-// Set max heap size for child processes in CCR environments (containers have 16GB)
-// eslint-disable-next-line custom-rules/no-top-level-side-effects, custom-rules/no-process-env-top-level, custom-rules/safe-env-boolean-check
-if (process.env.CLAUDE_CODE_REMOTE === 'true') {
-  // eslint-disable-next-line custom-rules/no-top-level-side-effects, custom-rules/no-process-env-top-level
+// Ensure --max-old-space-size is set for the current process (must happen early,
+// before significant allocations). Setting NODE_OPTIONS at runtime only affects
+// child processes — the current process reads it at startup before JS runs.
+// Re-exec ourselves with the flag if it's missing.
+(() => {
+  const execArgv = process.execArgv;
+  const hasMaxOldSpace = process.env.NODE_OPTIONS?.includes('--max-old-space-size') ||
+    execArgv.some(a => a.startsWith('--max-old-space-size'));
+  if (hasMaxOldSpace) return;
+
+  const { spawnSync } = require('child_process') as typeof import('child_process');
+  const result = spawnSync(
+    process.execPath,
+    ['--max-old-space-size=8192', ...execArgv, process.argv[1], ...process.argv.slice(2)],
+    { stdio: 'inherit' },
+  );
+  process.exit(result.status ?? (result.error ? 1 : 0));
+})();
+
+// Set max heap size for child processes so spawned Node.js children also get the limit.
+// eslint-disable-next-line custom-rules/no-top-level-side-effects, custom-rules/no-process-env-top-level
+(() => {
   const existing = process.env.NODE_OPTIONS || '';
-  // eslint-disable-next-line custom-rules/no-top-level-side-effects, custom-rules/no-process-env-top-level
-  process.env.NODE_OPTIONS = existing ? `${existing} --max-old-space-size=8192` : '--max-old-space-size=8192';
-}
+  if (!existing.includes('--max-old-space-size')) {
+    // eslint-disable-next-line custom-rules/no-top-level-side-effects, custom-rules/no-process-env-top-level
+    process.env.NODE_OPTIONS = existing ? `${existing} --max-old-space-size=8192` : '--max-old-space-size=8192';
+  }
+})();
 
 // Harness-science L0 ablation baseline. Inlined here (not init.ts) because
 // BashTool/AgentTool/PowerShellTool capture DISABLE_BACKGROUND_TASKS into

@@ -38,6 +38,7 @@ import resume from './commands/resume/index.ts'
 import review, { ultrareview } from './commands/review.ts'
 import session from './commands/session/index.ts'
 import share from './commands/share/index.js'
+import skipall from './commands/skipall/index.ts'
 import skills from './commands/skills/index.ts'
 import status from './commands/status/index.ts'
 import tasks from './commands/tasks/index.ts'
@@ -295,6 +296,7 @@ const COMMANDS = memoize((): Command[] => [
   rename,
   resume,
   session,
+  skipall,
   skills,
   stats,
   status,

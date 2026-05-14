@@ -48,7 +48,7 @@ fi
 # Install npm dependencies
 echo ""
 echo "[2/4] Installing npm dependencies..."
-npm ci || npm install
+npm ci --no-audit || npm install --no-audit
 
 # Rebuild native modules if needed (especially on non-x64 platforms)
 echo ""
